@@ -73,8 +73,7 @@ class Juego(Escena):
         return False
 
     def pintar_nave(self):
-        
-
+        pass
 
 
 class Records(Escena):

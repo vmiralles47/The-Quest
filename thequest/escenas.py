@@ -1,4 +1,5 @@
 import pygame as pg
+from . import ANCHO, ALTO, MAX_NIVELES
 
 
 class Escena:
@@ -11,7 +12,6 @@ class Escena:
         método para ser implementado por cada escena, 
         en función de lo que estén esperando hastala condición de salida
         """
-        print("bucle principal de escena")
 
     def barra_pulsada(self, evento):
         if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
@@ -48,9 +48,27 @@ class Portada(Escena):
 # pantalla donde se desarrolla cada nivel del juego. recibe como parámetro en qué nivel está para ajustar la dificultad
 
 
+class Nivel(Escena):
+    def __init__(self, pantalla):
+        super().__init__(pantalla)
+
+    def bucle_principal(self, nivel):
+        print("empieza nivel: ", nivel)
+        salir = False
+        while not salir:
+            # 1 capturar los eventos
+            for evento in pg.event.get():
+                if self.barra_pulsada(evento):
+                    salir = True
+            self.pantalla.fill((nivel*60, 99, nivel*60))
+            pg.display.flip()
+        return False
+
+
 class Juego(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
+        self.nivel = Nivel(pantalla)
 
     def bucle_principal(self):
         super().bucle_principal()
@@ -62,12 +80,13 @@ class Juego(Escena):
                 if evento.type == pg.QUIT:
                     # ():
                     return True
-                if self.barra_pulsada(evento):
+            # 2 lanzar el juego desde el nivel 1 hasta el máx niveles
+            for n in range(1, MAX_NIVELES+1):
+                self.nivel.bucle_principal(n)
+                if n == MAX_NIVELES:
                     salir = True
-            # 2. Calcular estado de elementos y pintarlos elementos
-            self.pantalla.fill((0, 99, 0))
 
-            # salir = self.empezar_partida()
+            print("fin del juego pasamos a pantalla de records. PULSA BARRA")
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         return False

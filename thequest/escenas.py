@@ -48,27 +48,10 @@ class Portada(Escena):
 # pantalla donde se desarrolla cada nivel del juego. recibe como parámetro en qué nivel está para ajustar la dificultad
 
 
-class Nivel(Escena):
-    def __init__(self, pantalla):
-        super().__init__(pantalla)
-
-    def bucle_principal(self, nivel):
-        print("empieza nivel: ", nivel)
-        salir = False
-        while not salir:
-            # 1 capturar los eventos
-            for evento in pg.event.get():
-                if self.barra_pulsada(evento):
-                    salir = True
-            self.pantalla.fill((nivel*60, 99, nivel*60))
-            pg.display.flip()
-        return False
-
-
 class Juego(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
-        self.nivel = Nivel(pantalla)
+        self.max_niveles = MAX_NIVELES
 
     def bucle_principal(self):
         super().bucle_principal()
@@ -78,18 +61,20 @@ class Juego(Escena):
             # 1 capturar los eventos
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
-                    # ():
                     return True
-            # 2 lanzar el juego desde el nivel 1 hasta el máx niveles
-            for n in range(1, MAX_NIVELES+1):
-                self.nivel.bucle_principal(n)
-                if n == MAX_NIVELES:
+                if self.barra_pulsada(evento):
                     salir = True
+            self.pantalla.fill((0, 99, 00))
+            self.pintar_nave()
 
-            print("fin del juego pasamos a pantalla de records. PULSA BARRA")
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
+        # lanzar el juego desde el nivel 1 hasta el máx niveles
         return False
+
+    def pintar_nave(self):
+        
+
 
 
 class Records(Escena):

@@ -1,5 +1,6 @@
 import pygame as pg
-from . import ANCHO, ALTO, MAX_NIVELES
+from . import ANCHO, ALTO,  MAX_NIVELES
+from .entidades import Nave
 
 
 class Escena:
@@ -52,6 +53,8 @@ class Juego(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
         self.max_niveles = MAX_NIVELES
+        self.jugador = Nave()
+        self.pantalla = pantalla
 
     def bucle_principal(self):
         super().bucle_principal()
@@ -64,16 +67,14 @@ class Juego(Escena):
                     return True
                 if self.barra_pulsada(evento):
                     salir = True
-            self.pantalla.fill((0, 99, 00))
-            self.pintar_nave()
+            self.pantalla.fill((66, 66, 66))
+            self.jugador.update()
+            self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)
 
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
         return False
-
-    def pintar_nave(self):
-        pass
 
 
 class Records(Escena):

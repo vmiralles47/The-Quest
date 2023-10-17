@@ -1,5 +1,6 @@
 import pygame as pg
-from . import ANCHO, ALTO,  MAX_NIVELES, RAD_ASTER, VEL_ASTER
+from random import randint, randrange
+from . import ANCHO, ALTO, MARGEN_DCH, MAX_NIVELES, RAD_ASTER, VEL_ASTER
 from .entidades import Asteroide, Nave
 
 
@@ -50,6 +51,8 @@ class Portada(Escena):
 
 
 class Juego(Escena):
+    lista_alturas = []
+
     def __init__(self, pantalla):
         super().__init__(pantalla)
         self.max_niveles = MAX_NIVELES
@@ -88,9 +91,28 @@ class Juego(Escena):
 
     def crear_campo_asteroides(self):
         campo_aster = []
-        asteroide = Asteroide(ANCHO, ALTO/2, RAD_ASTER[1], VEL_ASTER[1])
-        campo_aster.append(asteroide)
+        # nivel 1 10 asteroides tipo 1, 10 asteroides tipo 2, 10 asteorides tipo 3
+        for i in range(0, 10):
+            for r in range(0, MAX_NIVELES):
+                altura = self.generar_altura()
+                asteroide = Asteroide(MARGEN_DCH, altura,
+                                      RAD_ASTER[r], VEL_ASTER[r])
+                print("asteroide num ", i, "turno = ", asteroide.turno,
+                      "radio ", asteroide.radio, "velocidad ", asteroide.velocidad, "altura ", asteroide.pos_y)
+                campo_aster.append(asteroide)
         return campo_aster
+
+    def generar_altura(self):
+
+        altura = randrange(0, ALTO, 50)
+        exit = False
+        while exit == False:
+            if altura in self.lista_alturas:
+                altura = randint(0, ALTO)
+            else:
+                self.lista_alturas.append(altura)
+                exit = True
+        return altura
 
 
 class Records(Escena):

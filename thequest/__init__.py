@@ -13,7 +13,8 @@ MARGEN_DCH = ANCHO-MARGEN_IZQ
 
 # constantes para creacion de campo de asteorides:
 # hay tres tipos de asteroides, 1. pequeño y rápido, 2. normal, y 3. grande y lento
-VEL_ASTER = [2, 3, 4]
-RAD_ASTER = [15, 30, 60]
+VEL_ASTER = [3, 4, 5]
+RAD_ASTER = [60, 30, 15]
+
 
 VEL_NAVE = 10

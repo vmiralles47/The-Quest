@@ -1,5 +1,5 @@
 import os
-from random import randint
+from random import randint, randrange
 
 import pygame as pg
 
@@ -43,10 +43,13 @@ class Asteroide():
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.velocidad = velocidad
+        self.turno = randrange(0, 2000, 50)
 
     def update(self):
-        self.pos_x -= self.velocidad
+        self.turno = self.turno - 1
+        if self.turno < 0:
+            self.pos_x -= self.velocidad
 
     def pintar(self, pantalla):
         pg.draw.circle(pantalla, self.color,
-                       (self.pos_x, self.pos_y), self.radio)
+                       (self.pos_x, self.pos_y), self.radio, width=2)

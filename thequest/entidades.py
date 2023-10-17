@@ -4,7 +4,7 @@ from random import randint, randrange
 import pygame as pg
 
 
-from . import ANCHO, ALTO, COLOR_OBJETOS, MARGEN_IZQ, VEL_NAVE
+from . import ANCHO, ALTO, COLOR_OBJETOS, DURACION_TURNO, MARGEN_IZQ, VEL_NAVE
 
 
 class Nave():
@@ -43,7 +43,7 @@ class Asteroide():
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.velocidad = velocidad
-        self.turno = randrange(0, 2000, 50)
+        self.turno = randrange(0, DURACION_TURNO, 50)
 
     def update(self):
         self.turno = self.turno - 1

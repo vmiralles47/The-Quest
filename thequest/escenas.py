@@ -3,8 +3,8 @@ from random import randint, randrange
 
 import pygame as pg
 
-from . import ANCHO, ALTO, COLOR_OBJETOS,  MARGEN_DCH, MAX_NIVELES, ORIGEN_ASTER, RAD_ASTER, VEL_ASTER
-from .entidades import Asteroide, Nave
+from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER, VEL_ASTER
+from .entidades import Asteroide, Contador_Vidas, Marcador, Nave
 
 
 class Escena:
@@ -99,6 +99,8 @@ class Juego(Escena):
         self.campo_asteroides = self.crear_campo_asteroides()
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
+        self.marcador = Marcador()
+        self.contador_vidas = Contador_Vidas(NUM_VIDAS)
 
     def bucle_principal(self):
         super().bucle_principal()
@@ -114,6 +116,8 @@ class Juego(Escena):
             self.pantalla.fill((66, 66, 66))
             self.jugador.update()
             self.pintar_nave()
+            self.marcador.pintar(self.pantalla)
+            self.contador_vidas.pintar(self.pantalla)
 
             for asteroide in self.campo_asteroides:
                 asteroide.update()
@@ -130,7 +134,7 @@ class Juego(Escena):
     def crear_campo_asteroides(self):
         campo_aster = []
         # nivel 1 10 asteroides tipo 1, 10 asteroides tipo 2, 10 asteorides tipo 3
-        for i in range(0, 20):
+        for i in range(0, 10):
             for r in range(0, MAX_NIVELES):
                 altura = self.generar_altura()
                 asteroide = Asteroide(ORIGEN_ASTER, altura,
@@ -142,7 +146,8 @@ class Juego(Escena):
 
     def generar_altura(self):
         # genera una pos x aleatoria entre 0 y ALTO, tomada de 50 en 50 y que no puede repetirse
-        altura = randrange(0, ALTO, 50)
+        altura = randrange((ALTO_MARCADOR+RADIO_MAX_ASTER),
+                           ALTO)
         exit = False
         while exit == False:
             if altura in self.lista_alturas:

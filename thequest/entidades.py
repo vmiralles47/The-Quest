@@ -4,7 +4,7 @@ from random import randint, randrange
 import pygame as pg
 
 
-from . import ANCHO, ALTO, COLOR_OBJETOS, DURACION_TURNO, MARGEN_IZQ, VEL_NAVE
+from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, DURACION_TURNO, MARGEN_IZQ, VEL_NAVE
 
 
 class Nave():
@@ -19,8 +19,8 @@ class Nave():
         pulsadas = pg.key.get_pressed()
         if pulsadas[pg.K_UP]:
             self.rect.y -= VEL_NAVE
-            if self.rect.y < 0:
-                self.rect.y = 0
+            if self.rect.y < ALTO_MARCADOR:
+                self.rect.y = ALTO_MARCADOR
         if pulsadas[pg.K_DOWN]:
             self.rect.y += VEL_NAVE
             if self.rect.bottom > ALTO:
@@ -53,3 +53,43 @@ class Asteroide():
     def pintar(self, pantalla):
         pg.draw.circle(pantalla, self.color,
                        (self.pos_x, self.pos_y), self.radio, width=2)
+
+
+class Marcador():
+    def __init__(self):
+        self.total = 0
+        fuente = "Square.ttf"
+        ruta = os.path.join("resources", "fonts", fuente)
+        self.tipo = pg.font.Font(ruta, 40)
+
+    def incrementar(self, incremento):
+        self.total += incremento
+
+    def pintar(self, pantalla):
+        r = pg.rect.Rect(0, 0, ANCHO/2, ALTO_MARCADOR)
+        pg.draw.rect(pantalla, (0, 0, 0), r)
+        puntuacion = str(self.total)
+        texto = self.tipo.render(puntuacion, True, COLOR_OBJETOS)
+        pos_x = MARGEN_IZQ
+        pos_y = (ALTO_MARCADOR - self.tipo.get_height())/2
+        pantalla.blit(texto, (pos_x, pos_y))
+
+
+class Contador_Vidas():
+    def __init__(self, vidas):
+        self.total_vidas = vidas
+        fuente = "Square.ttf"
+        ruta = os.path.join("resources", "fonts", fuente)
+        self.tipo = pg.font.Font(ruta, 40)
+
+    def restar_vida(self):
+        self.total_vidas -= 1
+
+    def pintar(self, pantalla):
+        r = pg.rect.Rect(ANCHO/2, 0, ANCHO, ALTO_MARCADOR)
+        pg.draw.rect(pantalla, (0, 0, 0), r)
+        vidas = str(self.total_vidas)
+        texto = self.tipo.render(vidas, True, COLOR_OBJETOS)
+        pos_x = ANCHO - 100
+        pos_y = (ALTO_MARCADOR - self.tipo.get_height())/2
+        pantalla.blit(texto, (pos_x, pos_y))

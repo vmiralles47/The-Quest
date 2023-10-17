@@ -16,8 +16,8 @@ Podrán tener una velocidad y un tamaño
 cargarán una imagen u otra en función de qué tipo sean
 métodos:
 1. Crear(tamaño, velocidad) (o tipo)
-2. Pintar
-3. Moverse (velocidad o tipo)
+2. Pintar (DONE)
+3. Moverse (velocidad o tipo) (UPDATE)
 4. Avisa si sale de la pantalla por el margen izquierdo
 
 **campo de asteroides:**

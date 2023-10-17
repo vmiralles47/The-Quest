@@ -1,6 +1,6 @@
 import pygame as pg
-from . import ANCHO, ALTO,  MAX_NIVELES
-from .entidades import Nave
+from . import ANCHO, ALTO,  MAX_NIVELES, RAD_ASTER, VEL_ASTER
+from .entidades import Asteroide, Nave
 
 
 class Escena:
@@ -54,6 +54,9 @@ class Juego(Escena):
         super().__init__(pantalla)
         self.max_niveles = MAX_NIVELES
         self.jugador = Nave()
+        self.campo_asteroides = []
+        self.campo_asteroides = self.crear_campo_asteroides()
+        # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
 
     def bucle_principal(self):
@@ -69,12 +72,25 @@ class Juego(Escena):
                     salir = True
             self.pantalla.fill((66, 66, 66))
             self.jugador.update()
-            self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)
+            self.pintar_nave()
+
+            for asteroide in self.campo_asteroides:
+                asteroide.update()
+                asteroide.pintar(self.pantalla)
 
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
         return False
+
+    def pintar_nave(self):
+        self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)
+
+    def crear_campo_asteroides(self):
+        campo_aster = []
+        asteroide = Asteroide(ANCHO, ALTO/2, RAD_ASTER[1], VEL_ASTER[1])
+        campo_aster.append(asteroide)
+        return campo_aster
 
 
 class Records(Escena):

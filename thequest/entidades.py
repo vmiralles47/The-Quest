@@ -28,7 +28,7 @@ class Nave():
 
     def explotar(self):
         # carga la sec de imagenes de la explosión
-        pass
+        self.rect.y = (ALTO-ALTO_MARCADOR)/2
 
     def aterrizar(self):
         # secuencia de movimiento de la nave en el final de nivel
@@ -37,22 +37,28 @@ class Nave():
 
 class Asteroide():
 
-    def __init__(self, pos_x, pos_y, radio, velocidad):
+    def __init__(self, tipo, pos_x, pos_y, radio, velocidad):
+        self.tipo = tipo
         self.radio = radio
         self.color = COLOR_OBJETOS
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.velocidad = velocidad
         self.turno = randrange(0, DURACION_TURNO, 50)
+        self.rect = pg.rect.Rect(0, 0, 0, 0)
 
     def update(self):
+        ha_salido = False
         self.turno = self.turno - 1
         if self.turno < 0:
             self.pos_x -= self.velocidad
+        if self.pos_x < 0:
+            ha_salido = True
+        return ha_salido
 
     def pintar(self, pantalla):
-        pg.draw.circle(pantalla, self.color,
-                       (self.pos_x, self.pos_y), self.radio, width=2)
+        self.rect = pg.draw.circle(pantalla, self.color,
+                                   (self.pos_x, self.pos_y), self.radio, width=2)
 
 
 class Marcador():
@@ -93,3 +99,6 @@ class Contador_Vidas():
         pos_x = ANCHO - 100
         pos_y = (ALTO_MARCADOR - self.tipo.get_height())/2
         pantalla.blit(texto, (pos_x, pos_y))
+
+    def consultar(self):
+        return self.total_vidas

@@ -113,20 +113,49 @@ class Juego(Escena):
                     return True
                 if self.barra_pulsada(evento):
                     salir = True
+
             self.pantalla.fill((66, 66, 66))
+
             self.jugador.update()
             self.pintar_nave()
             self.marcador.pintar(self.pantalla)
             self.contador_vidas.pintar(self.pantalla)
 
-            for asteroide in self.campo_asteroides:
-                asteroide.update()
-                asteroide.pintar(self.pantalla)
+            if self.contador_vidas.consultar() == 0:
+                self.final_de_partida()
+                salir = True
+
+            else:
+                for asteroide in self.campo_asteroides:
+                    eliminado = asteroide.update()
+                    asteroide.pintar(self.pantalla)
+                    if pg.Rect.colliderect(asteroide.rect, self.jugador.rect):
+                        self.resolver_choque(asteroide)
+
+                    if eliminado:
+                        self.marcador.incrementar(asteroide.tipo*10)
+                        print("asteroide eliminado tipo ", asteroide.tipo)
+                        self.campo_asteroides.remove(asteroide)
 
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
         return False
+
+    def final_de_partida(self):
+        print("te has quedado sin vidas")
+        # comprobar record
+        # si es record pedir datos y guardar en base de datos
+
+    def resolver_choque(self, asteroide):
+        print("colisión")
+        self.contador_vidas.restar_vida()
+        self.campo_asteroides.remove(asteroide)
+        self.jugador.explotar()
+        for ast in self.campo_asteroides:
+            ast.turno += 200
+
+        # cómo paro la partida?
 
     def pintar_nave(self):
         self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)
@@ -137,9 +166,9 @@ class Juego(Escena):
         for i in range(0, 10):
             for r in range(0, MAX_NIVELES):
                 altura = self.generar_altura()
-                asteroide = Asteroide(ORIGEN_ASTER, altura,
+                asteroide = Asteroide(r+1, ORIGEN_ASTER, altura,
                                       RAD_ASTER[r], VEL_ASTER[r])
-                print("asteroide num ", i, "turno = ", asteroide.turno,
+                print("asteroide tipo ", r+1, "turno = ", asteroide.turno,
                       "radio ", asteroide.radio, "velocidad ", asteroide.velocidad, "altura ", asteroide.pos_y)
                 campo_aster.append(asteroide)
         return campo_aster
@@ -157,7 +186,8 @@ class Juego(Escena):
                 exit = True
         return altura
 
-
+    def muestra_mensaje(self,cadena):
+        
 class Records(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)

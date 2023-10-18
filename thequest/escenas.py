@@ -21,6 +21,30 @@ class Escena:
     def barra_pulsada(self, evento):
         if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
             return True
+
+    def pintar_mensaje(self, cadena):
+        ruta = os.path.join("resources", "fonts", "Square.ttf")
+        tipo = pg.font.Font(ruta, 30)
+        mensaje = cadena
+        lineas = mensaje.splitlines()
+        altura = tipo.get_height()
+        contador = 0
+        for linea in lineas:
+            texto_imagen = tipo.render(linea, True, COLOR_OBJETOS)
+            x = (ANCHO-texto_imagen.get_width())/2
+            y = (ALTO/2) + contador*altura
+            contador += 1
+            self.pantalla.blit(texto_imagen, (x, y))
+
+    def pintar_mensaje_barra(self):
+        ruta = os.path.join("resources", "fonts", "Square.ttf")
+        tipo = pg.font.Font(ruta, 15)
+        mensaje = "Pulsa ESPACIO para continuar"
+        texto_imagen = tipo.render(mensaje, True, COLOR_OBJETOS, (0, 0, 0))
+        x = (ANCHO-texto_imagen.get_width())/2
+        y = 5*(ALTO/6)
+        self.pantalla.blit(texto_imagen, (x, y))
+
 # pantalla inicial con título,la historia de THE QUEST y press space to continue/puede alternar con RECORDS
 
 
@@ -45,7 +69,8 @@ class Portada(Escena):
             # pintar.logo
             self.pintar_logo()
             # pintar.backstory
-            self.pintar_backstory()
+            self.pintar_mensaje(
+                "Explora la galaxia en busca de nuevos mundos.\nEsquiva los obstáculos, aterriza y lleva\nuna nueva esperanza a la Humanidad")
             # pintar "pulsar SPACE_BAR para empezar"
             self.pintar_mensaje_barra()
 
@@ -63,28 +88,7 @@ class Portada(Escena):
         y = (ALTO - texto_imagen.get_height())/4
         self.pantalla.blit(texto_imagen, (x, y))
 
-    def pintar_backstory(self):
-        ruta = os.path.join("resources", "fonts", "Square.ttf")
-        tipo = pg.font.Font(ruta, 30)
-        mensaje = "Explora la galaxia en busca de nuevos mundos.\nEsquiva los obstáculos, aterriza y lleva\nuna nueva esperanza a la Humanidad"
-        lineas = mensaje.splitlines()
-        altura = tipo.get_height()
-        contador = 0
-        for linea in lineas:
-            texto_imagen = tipo.render(linea, True, COLOR_OBJETOS)
-            x = (ANCHO-texto_imagen.get_width())/2
-            y = (ALTO/2) + contador*altura
-            contador += 1
-            self.pantalla.blit(texto_imagen, (x, y))
 
-    def pintar_mensaje_barra(self):
-        ruta = os.path.join("resources", "fonts", "Square.ttf")
-        tipo = pg.font.Font(ruta, 15)
-        mensaje = "Pulsa ESPACIO para continuar"
-        texto_imagen = tipo.render(mensaje, True, COLOR_OBJETOS, (0, 0, 0))
-        x = (ANCHO-texto_imagen.get_width())/2
-        y = 5*(ALTO/6)
-        self.pantalla.blit(texto_imagen, (x, y))
 # pantalla donde se desarrolla cada nivel del juego. recibe como parámetro en qué nivel está para ajustar la dificultad
 
 
@@ -105,6 +109,7 @@ class Juego(Escena):
     def bucle_principal(self):
         super().bucle_principal()
         print("bucle principal de Juego")
+        ha_perdido = False
         salir = False
         while not salir:
             # 1 capturar los eventos
@@ -115,27 +120,28 @@ class Juego(Escena):
                     salir = True
 
             self.pantalla.fill((66, 66, 66))
-
             self.jugador.update()
             self.pintar_nave()
-            self.marcador.pintar(self.pantalla)
-            self.contador_vidas.pintar(self.pantalla)
 
             if self.contador_vidas.consultar() == 0:
                 self.final_de_partida()
-                salir = True
-
+                ha_perdido = True
             else:
                 for asteroide in self.campo_asteroides:
                     eliminado = asteroide.update()
                     asteroide.pintar(self.pantalla)
                     if pg.Rect.colliderect(asteroide.rect, self.jugador.rect):
                         self.resolver_choque(asteroide)
-
                     if eliminado:
                         self.marcador.incrementar(asteroide.tipo*10)
                         print("asteroide eliminado tipo ", asteroide.tipo)
                         self.campo_asteroides.remove(asteroide)
+
+            self.marcador.pintar(self.pantalla)
+            self.contador_vidas.pintar(self.pantalla)
+
+            if ha_perdido:
+                self.final_de_partida()
 
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
@@ -143,7 +149,12 @@ class Juego(Escena):
         return False
 
     def final_de_partida(self):
+
         print("te has quedado sin vidas")
+        salir = False
+        self.pintar_mensaje("has perdido")
+        self.pintar_mensaje_barra()
+
         # comprobar record
         # si es record pedir datos y guardar en base de datos
 
@@ -152,10 +163,9 @@ class Juego(Escena):
         self.contador_vidas.restar_vida()
         self.campo_asteroides.remove(asteroide)
         self.jugador.explotar()
+        # cómo paro la partida?
         for ast in self.campo_asteroides:
             ast.turno += 200
-
-        # cómo paro la partida?
 
     def pintar_nave(self):
         self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)
@@ -186,8 +196,7 @@ class Juego(Escena):
                 exit = True
         return altura
 
-    def muestra_mensaje(self,cadena):
-        
+
 class Records(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)

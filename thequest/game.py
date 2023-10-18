@@ -13,12 +13,14 @@ class TheQuest:
         portada = Portada(self.pantalla)
         juego = Juego(self.pantalla)
         records = Records(self.pantalla)
+
         self.escenas = [portada, juego, records]
 
     def jugar(self):
         for escena in self.escenas:
             he_acabado = escena.bucle_principal()
             if he_acabado:
+
                 break
         print("saliendo del bucle de thequest.jugar")
         pg.quit()

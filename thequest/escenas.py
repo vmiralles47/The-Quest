@@ -3,7 +3,7 @@ from random import randint, randrange
 
 import pygame as pg
 
-from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER, TIPOS_DE_ASTEROIDES, VEL_ASTER
+from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER, TIPOS_DE_ASTEROIDES, VEL_ASTER
 from .entidades import Asteroide, Contador_Vidas, Marcador, Nave
 
 
@@ -113,6 +113,7 @@ class Juego(Escena):
         ha_perdido = False
         salir = False
         while not salir:
+            self.reloj.tick(FPS)
             # 1 capturar los eventos
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
@@ -165,8 +166,11 @@ class Juego(Escena):
         self.campo_asteroides.remove(asteroide)
         self.jugador.explotar()
         # cómo paro la partida?
+        pg.time.delay(1000)
+        """
         for ast in self.campo_asteroides:
             ast.turno += 200
+        """
 
     def pintar_nave(self):
         self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)

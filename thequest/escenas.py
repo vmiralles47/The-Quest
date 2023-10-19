@@ -3,7 +3,7 @@ from random import randint, randrange
 
 import pygame as pg
 
-from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER, TIPOS_DE_ASTEROIDES, VEL_ASTER
+from . import ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER, TIPOS_DE_ASTEROIDES, VEL_ASTER
 from .entidades import Asteroide, Contador_Vidas, Marcador, Nave
 
 
@@ -101,7 +101,7 @@ class Juego(Escena):
         self.nivel = 1
         self.jugador = Nave()
         self.campo_asteroides = []
-        self.campo_asteroides = self.crear_campo_asteroides()
+
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
         self.marcador = Marcador()
@@ -110,6 +110,7 @@ class Juego(Escena):
     def bucle_principal(self):
         super().bucle_principal()
         print("bucle principal de Juego")
+        self.campo_asteroides = self.crear_campo_asteroides()
         ha_perdido = False
         salir = False
         while not salir:
@@ -138,6 +139,7 @@ class Juego(Escena):
                         self.marcador.incrementar(asteroide.tipo*10)
                         print("asteroide eliminado tipo ", asteroide.tipo)
                         self.campo_asteroides.remove(asteroide)
+                    # if self.campo_asteroides == []:
 
             self.marcador.pintar(self.pantalla)
             self.contador_vidas.pintar(self.pantalla)
@@ -178,13 +180,10 @@ class Juego(Escena):
     def crear_campo_asteroides(self):
         campo_aster = []
         # nivel 1 10 asteroides tipo 1, 10 asteroides tipo 2, 10 asteorides tipo 3
-        for i in range(0, 10):
+        for i in range(0, ASTEROIDES_POR_NIVEL[0]):
             for r in range(0, TIPOS_DE_ASTEROIDES):
                 altura = self.generar_altura()
-                asteroide = Asteroide(r+1, ORIGEN_ASTER, altura,
-                                      RAD_ASTER[r], VEL_ASTER[r])
-                print("asteroide tipo ", r+1, "turno = ", asteroide.turno,
-                      "radio ", asteroide.radio, "velocidad ", asteroide.velocidad, "altura ", asteroide.pos_y)
+                asteroide = Asteroide(r+1, altura)
                 campo_aster.append(asteroide)
         return campo_aster
 

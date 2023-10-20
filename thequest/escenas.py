@@ -92,26 +92,26 @@ class Portada(Escena):
 # pantalla donde se desarrolla cada nivel del juego. recibe como parámetro en qué nivel está para ajustar la dificultad
 
 
-class Juego(Escena):
+class Nivel(Escena):
     lista_alturas = []
 
-    def __init__(self, pantalla):
+    def __init__(self, pantalla, nivel):
         super().__init__(pantalla)
-        self.max_niveles = MAX_NIVELES
-        self.nivel = 1
+        self.nivel = nivel
         self.jugador = Nave()
         self.campo_asteroides = []
 
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
         self.marcador = Marcador()
-        self.contador_vidas = Contador_Vidas(NUM_VIDAS)
+        self.contador_vidas = Contador_Vidas()
 
     def bucle_principal(self):
+
         super().bucle_principal()
         print("bucle principal de Juego")
-        self.campo_asteroides = self.crear_campo_asteroides()
-        ha_perdido = False
+        self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
+
         salir = False
         while not salir:
             self.reloj.tick(FPS)
@@ -127,38 +127,42 @@ class Juego(Escena):
             self.pintar_nave()
 
             if self.contador_vidas.consultar() == 0:
-                self.final_de_partida()
-                ha_perdido = True
+                subir_nivel = self.final_de_partida()
+
+            elif self.campo_asteroides == []:
+                subir_nivel = self.final_de_nivel()
             else:
                 for asteroide in self.campo_asteroides:
-                    eliminado = asteroide.update()
+                    eliminado = asteroide.update(self.nivel)
                     asteroide.pintar(self.pantalla)
                     if pg.Rect.colliderect(asteroide.rect, self.jugador.rect):
                         self.resolver_choque(asteroide)
                     if eliminado:
-                        self.marcador.incrementar(asteroide.tipo*10)
+                        self.marcador.incrementar(asteroide.tipo*10*self.nivel)
                         print("asteroide eliminado tipo ", asteroide.tipo)
                         self.campo_asteroides.remove(asteroide)
-                    # if self.campo_asteroides == []:
 
             self.marcador.pintar(self.pantalla)
             self.contador_vidas.pintar(self.pantalla)
 
-            if ha_perdido:
-                self.final_de_partida()
-
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
-        return False
+        return False, subir_nivel
+
+    def final_de_nivel(self):
+        print("has superado el nivel")
+        self.pintar_mensaje("Has superado el nivel")
+        self.pintar_mensaje_barra()
+        return True
 
     def final_de_partida(self):
 
         print("te has quedado sin vidas")
-        salir = False
+
         self.pintar_mensaje("has perdido")
         self.pintar_mensaje_barra()
-
+        return False
         # comprobar record
         # si es record pedir datos y guardar en base de datos
 
@@ -177,14 +181,15 @@ class Juego(Escena):
     def pintar_nave(self):
         self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)
 
-    def crear_campo_asteroides(self):
+    def crear_campo_asteroides(self, nivel):
         campo_aster = []
         # nivel 1 10 asteroides tipo 1, 10 asteroides tipo 2, 10 asteorides tipo 3
-        for i in range(0, ASTEROIDES_POR_NIVEL[0]):
+        for i in range(0, ASTEROIDES_POR_NIVEL[nivel-1]):
             for r in range(0, TIPOS_DE_ASTEROIDES):
                 altura = self.generar_altura()
                 asteroide = Asteroide(r+1, altura)
                 campo_aster.append(asteroide)
+        print("Creados ", len(campo_aster), " asteorides")
         return campo_aster
 
     def generar_altura(self):

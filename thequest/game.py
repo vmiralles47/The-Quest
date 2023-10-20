@@ -1,7 +1,7 @@
 import pygame as pg
 
 from . import ALTO, ANCHO
-from .escenas import Juego, Portada, Records
+from .escenas import Nivel, Portada, Records
 
 
 class TheQuest:
@@ -11,7 +11,7 @@ class TheQuest:
         # importar las escenas necesarias para jugar: INICIO Y JUEGO (records puede ser llamada tanto desde Inicio como Juego)
         # pasarles como argumento self.pantalla y self.records
         portada = Portada(self.pantalla)
-        juego = Juego(self.pantalla)
+        juego = Nivel(self.pantalla)
         records = Records(self.pantalla)
 
         self.escenas = [portada, juego, records]
@@ -20,7 +20,6 @@ class TheQuest:
         for escena in self.escenas:
             he_acabado = escena.bucle_principal()
             if he_acabado:
-
                 break
         print("saliendo del bucle de thequest.jugar")
         pg.quit()

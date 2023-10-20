@@ -4,7 +4,7 @@ from random import randint, randrange
 import pygame as pg
 
 
-from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, DURACION_TURNO, MARGEN_IZQ, ORIGEN_ASTER, RAD_ASTER, VEL_NAVE, VEL_ASTER
+from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, DURACION_TURNO, MARGEN_IZQ, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, VEL_NAVE, VEL_ASTER
 
 
 class Nave():
@@ -53,11 +53,11 @@ class Asteroide():
               "velocidad ", self.velocidad,
               "altura ", self.pos_y)
 
-    def update(self):
+    def update(self, nivel):
         ha_salido = False
         self.turno = self.turno - 1
         if self.turno < 0:
-            self.pos_x -= self.velocidad
+            self.pos_x -= self.velocidad*nivel
         if self.pos_x < 0:
             ha_salido = True
         return ha_salido
@@ -88,8 +88,8 @@ class Marcador():
 
 
 class Contador_Vidas():
-    def __init__(self, vidas):
-        self.total_vidas = vidas
+    def __init__(self):
+        self.total_vidas = NUM_VIDAS
         fuente = "Square.ttf"
         ruta = os.path.join("resources", "fonts", fuente)
         self.tipo = pg.font.Font(ruta, 40)
@@ -108,3 +108,6 @@ class Contador_Vidas():
 
     def consultar(self):
         return self.total_vidas
+
+    def resetear(self):
+        self.total_vidas = NUM_VIDAS

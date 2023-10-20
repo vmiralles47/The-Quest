@@ -93,7 +93,9 @@ class Portada(Escena):
 
 
 class Nivel(Escena):
-    lista_alturas = []
+    # atributo de clase, para que lo usen los distintos niveles
+    puntuacion = 0
+    vidas = NUM_VIDAS
 
     def __init__(self, pantalla, nivel):
         super().__init__(pantalla)
@@ -103,8 +105,9 @@ class Nivel(Escena):
 
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
-        self.marcador = Marcador()
-        self.contador_vidas = Contador_Vidas()
+        print("Nivel.puntacion= ", Nivel.puntuacion)
+        self.marcador = Marcador(Nivel.puntuacion)
+        self.contador_vidas = Contador_Vidas(Nivel.vidas)
 
     def bucle_principal(self):
 
@@ -148,9 +151,15 @@ class Nivel(Escena):
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
+        if subir_nivel:
+            Nivel.puntuacion = self.marcador.total
+            Nivel.vidas = self.contador_vidas.total_vidas
         return False, subir_nivel
 
     def final_de_nivel(self):
+        print("self.marcador.total = ", self.marcador.total)
+
+        print("Nivel.punutacion= ", Nivel.puntuacion)
         print("has superado el nivel")
         self.pintar_mensaje("Has superado el nivel")
         self.pintar_mensaje_barra()
@@ -183,25 +192,28 @@ class Nivel(Escena):
 
     def crear_campo_asteroides(self, nivel):
         campo_aster = []
+        lista_alturas = []
         # nivel 1 10 asteroides tipo 1, 10 asteroides tipo 2, 10 asteorides tipo 3
         for i in range(0, ASTEROIDES_POR_NIVEL[nivel-1]):
             for r in range(0, TIPOS_DE_ASTEROIDES):
-                altura = self.generar_altura()
+                altura = Nivel.generar_altura(lista_alturas)
                 asteroide = Asteroide(r+1, altura)
                 campo_aster.append(asteroide)
         print("Creados ", len(campo_aster), " asteorides")
         return campo_aster
 
-    def generar_altura(self):
+    def generar_altura(lista):
+        # es un método de Clase, por probar.
         # genera una pos x aleatoria entre 0 y ALTO, tomada de 50 en 50 y que no puede repetirse
+
         altura = randrange((ALTO_MARCADOR+RADIO_MAX_ASTER),
                            ALTO)
         exit = False
         while exit == False:
-            if altura in self.lista_alturas:
+            if altura in lista:
                 altura = randint(0, ALTO)
             else:
-                self.lista_alturas.append(altura)
+                lista.append(altura)
                 exit = True
         return altura
 

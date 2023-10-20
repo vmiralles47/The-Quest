@@ -68,8 +68,8 @@ class Asteroide():
 
 
 class Marcador():
-    def __init__(self):
-        self.total = 0
+    def __init__(self, puntos_de_inicio):
+        self.total = puntos_de_inicio
         fuente = "Square.ttf"
         ruta = os.path.join("resources", "fonts", fuente)
         self.tipo = pg.font.Font(ruta, 40)
@@ -88,8 +88,8 @@ class Marcador():
 
 
 class Contador_Vidas():
-    def __init__(self):
-        self.total_vidas = NUM_VIDAS
+    def __init__(self, vidas_iniciales):
+        self.total_vidas = vidas_iniciales
         fuente = "Square.ttf"
         ruta = os.path.join("resources", "fonts", fuente)
         self.tipo = pg.font.Font(ruta, 40)

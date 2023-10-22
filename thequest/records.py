@@ -22,3 +22,5 @@ class Records:
         self.lista_records = self.lista_records[:MAX_RECORDS]
         print(self.lista_records)
         self.db.guardar(self.lista_records)
+        self.lista_records = self.db.cargar()
+        print("lista actualizada ", self.lista_records)

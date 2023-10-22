@@ -26,9 +26,27 @@ class DBManager:
         cursor = conexion.cursor()
         cursor.execute(consulta)
         self.records = cursor.fetchall()  # devuelve una lista de tuplas
-        print(self.records)
-        conexion.close
+        conexion.close()
         return self.records
 
     def guardar(self, lista):
-        pass
+        self.borrar_lista()
+
+        print("voy a insertar en db la lista ", lista)
+        conexion = sqlite3.connect(self.ruta)
+        cursor = conexion.cursor()
+        for dupla in lista:
+            consulta = f"INSERT INTO records(nombre,puntos) VALUES ('{dupla[0]}', {dupla[1]})"
+            cursor.execute(consulta)
+
+        conexion.commit()
+        conexion.close()
+
+    def borrar_lista(self):
+        check_list = []
+        consulta = "DELETE FROM records WHERE _rowid_ IN ('10', '9','8', '7','6','5', '4', '3', '2', '1')"
+        conexion = sqlite3.connect(self.ruta)
+        cursor = conexion.cursor()
+        cursor.execute(consulta)
+        conexion.commit()
+        conexion.close()

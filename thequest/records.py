@@ -1,11 +1,11 @@
 import os
-from dbmanager import DBManager
+from .dbmanager import DBManager
 MAX_RECORDS = 10
 
 
 class Records:
 
-    ruta = os.path.join("data", "records.db")
+    ruta = os.path.join("thequest/data", "records.db")
     # file_dir = os.path.dirname(os.path.realpath(__file__))
 
     def __init__(self):

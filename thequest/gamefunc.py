@@ -1,7 +1,7 @@
 import pygame as pg
 
 from . import ALTO, ANCHO, MAX_NIVELES
-from .escenas import Nivel, Portada, Records
+from .escenas import Nivel, Portada, Pantalla_records
 
 
 class TheQuest:
@@ -12,9 +12,11 @@ class TheQuest:
         # pasarles como argumento self.pantalla y self.records
         self.nivel = 1
         self.portada = Portada(self.pantalla)
-        self.records = Records(self.pantalla)
+        self.records = Pantalla_records(self.pantalla)
 
     def jugar(self):
+
+        cerrar_juego = self.records.bucle_principal()
         cerrar_juego = self.portada.bucle_principal()
         if cerrar_juego:
             print("cierro el juego")

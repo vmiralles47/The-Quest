@@ -3,8 +3,12 @@ from random import randint, randrange
 
 import pygame as pg
 
-from . import ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER, TIPOS_DE_ASTEROIDES, VEL_ASTER
+from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS,
+               FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER,
+               TIPOS_DE_ASTEROIDES, VEL_ASTER)
+
 from .entidades import Asteroide, Contador_Vidas, Marcador, Nave
+from .dbmanager import DBManager
 
 
 class Escena:
@@ -221,6 +225,7 @@ class Nivel(Escena):
 class Records(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
+        self.db = DBManager()
 
     def bucle_principal(self):
         super().bucle_principal()

@@ -8,7 +8,7 @@ from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
 
 from .entidades import Asteroide, Contador_Vidas, Marcador, Nave
-from .dbmanager import DBManager
+from .records import Records
 
 
 class Escena:
@@ -49,6 +49,15 @@ class Escena:
         y = 5*(ALTO/6)
         self.pantalla.blit(texto_imagen, (x, y))
 
+    def pintar_logo(self):
+        # de momenot escribe el nombre del juego con una fuente chula
+        ruta = os.path.join("resources", "fonts", "spaceranger.ttf")
+        tipo = pg.font.Font(ruta, 100)
+        mensaje = "THE QUEST"
+        texto_imagen = tipo.render(mensaje, True, COLOR_OBJETOS)
+        x = (ANCHO - texto_imagen.get_width())/2
+        y = (ALTO - texto_imagen.get_height())/4
+        self.pantalla.blit(texto_imagen, (x, y))
 # pantalla inicial con título,la historia de THE QUEST y press space to continue/puede alternar con RECORDS
 
 
@@ -81,16 +90,6 @@ class Portada(Escena):
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         return False
-
-    def pintar_logo(self):
-        # de momenot escribe el nombre del juego con una fuente chula
-        ruta = os.path.join("resources", "fonts", "spaceranger.ttf")
-        tipo = pg.font.Font(ruta, 100)
-        mensaje = "THE QUEST"
-        texto_imagen = tipo.render(mensaje, True, COLOR_OBJETOS)
-        x = (ANCHO - texto_imagen.get_width())/2
-        y = (ALTO - texto_imagen.get_height())/4
-        self.pantalla.blit(texto_imagen, (x, y))
 
 
 # pantalla donde se desarrolla cada nivel del juego. recibe como parámetro en qué nivel está para ajustar la dificultad
@@ -222,10 +221,10 @@ class Nivel(Escena):
         return altura
 
 
-class Records(Escena):
+class Pantalla_records(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
-        self.db = DBManager()
+        self.records = Records()
 
     def bucle_principal(self):
         super().bucle_principal()
@@ -241,8 +240,21 @@ class Records(Escena):
                     salir = True
             # 2. Calcular estado de elementos y pintarlos elementos
             self.pantalla.fill((0, 0, 99))
-
+            self.pintar_logo()
+            self.pintar_records()
             # salir = self.empezar_partida()
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         return False
+
+    def pintar_records(self):
+        ruta = os.path.join("resources", "fonts", "Square.ttf")
+        tipo = pg.font.Font(ruta, 30)
+        l = 0
+        for dupla in self.records.lista_records:
+            linea = f"{dupla[0]} ------- {str(dupla[1])}"
+            texto = tipo.render(linea, True, (230, 189, 40))
+            pos_x = (500)
+            pos_y = (ALTO/2) + (l*40)
+            l += 1
+            self.pantalla.blit(texto, (pos_x, pos_y))

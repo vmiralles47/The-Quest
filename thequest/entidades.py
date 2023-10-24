@@ -11,29 +11,49 @@ class Nave(pg.sprite.Sprite):
 
     def __init__(self):
         super().__init__()
-        self.lista_imagenes = []
-        for i in range(9):
-            ruta = os.path.join("resources", "images",
-                                "starship", f"A_idle_000{i+1}.png")
-            # self.imagen_nave es de tipo surface
-            self.lista_imagenes.append(pg.image.load(ruta))
-        self.contador_img = 0
-        self.imagen = self.lista_imagenes[self.contador_img]
-
-        self.rect = self.imagen.get_rect(midleft=(MARGEN_IZQ, ALTO/2))
+        ruta = os.path.join("resources", "images", "spritesheet_starship.png")
+        # surface origen de la que coger los frames
+        self.sheet_nave = pg.image.load(ruta)
+        # la spritesheet tiene 3 filas de 16 frames cada una, de 100x100 pts.
+        self.current_frame = 0
+        self.frames = 16
+        self.frame_width = 100
+        self.frame_height = 100
+        frame_area = (0, 0, self.frame_width, self.frame_height)
+        # mi surface a mostrar:
+        self.frame_surf = pg.Surface((self.frame_width, self.frame_height))
+        alto_inicial = ((ALTO-ALTO_MARCADOR)/2)+(self.frame_height/2)
+        self.frame_surf.blit(self.sheet_nave, (0, 0),
+                             area=frame_area)
+        self.rect = self.frame_surf.get_rect(
+            midleft=(MARGEN_IZQ, alto_inicial))
+        self.frame_surf.set_colorkey((0, 0, 0))
 
     def update(self):
-        self.contador_img += 1
-        if self.contador_img > 8:
-            self.contador_img = 0
-        self.imagen = self.lista_imagenes[self.contador_img]
+        if self.current_frame > self.frames - 1:
+            self.current_frame = 0
+        else:
+            self.current_frame += 1
+
+        frame_area = (self.current_frame*self.frame_width,
+                      0, self.frame_width, self.frame_height)
+        self.frame_surf.blit(
+            self.sheet_nave, (0, 0), area=frame_area)
 
         pulsadas = pg.key.get_pressed()
         if pulsadas[pg.K_UP]:
+            frame_area = (self.current_frame*self.frame_width,
+                          200, self.frame_width, self.frame_height)
+            self.frame_surf.blit(
+                self.sheet_nave, (0, 0), area=frame_area)
             self.rect.y -= VEL_NAVE
             if self.rect.y < ALTO_MARCADOR:
                 self.rect.y = ALTO_MARCADOR
         if pulsadas[pg.K_DOWN]:
+            frame_area = (self.current_frame*self.frame_width,
+                          100, self.frame_width, self.frame_height)
+            self.frame_surf.blit(
+                self.sheet_nave, (0, 0), area=frame_area)
             self.rect.y += VEL_NAVE
             if self.rect.bottom > ALTO:
                 self.rect.bottom = ALTO

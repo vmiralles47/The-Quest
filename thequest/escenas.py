@@ -185,10 +185,6 @@ class Nivel(Escena):
         self.jugador.explotar()
         # cómo paro la partida?
         pg.time.delay(1000)
-        """
-        for ast in self.campo_asteroides:
-            ast.turno += 200
-        """
 
     def pintar_nave(self):
         self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)
@@ -221,14 +217,21 @@ class Nivel(Escena):
         return altura
 
 
-class Pantalla_records(Escena):
+class Gestion_records (Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
         self.records = Records()
 
-    def bucle_principal(self):
+
+class Pantalla_puntos(Gestion_records):
+    def __init__(self, pantalla):
+        super().__init__(pantalla)
+
+    def bucle_principal(self, puntuacion):
         super().bucle_principal()
-        print("bucle principal de Records")
+        print("bucle principal de Pantalla_Records")
+        es_record = False
+
         salir = False
         while not salir:
             # 1 capturar los eventos
@@ -241,6 +244,47 @@ class Pantalla_records(Escena):
             # 2. Calcular estado de elementos y pintarlos elementos
             self.pantalla.fill((0, 0, 99))
             self.pintar_logo()
+            self.comprobar_record(puntuacion)
+
+            # salir = self.empezar_partida()
+            # 3. Mostrar los cambios (pintados) y controlar el reloj
+            pg.display.flip()
+        return False
+
+    def comprobar_record(self, puntuacion):
+        if self.records.es_record(puntuacion):
+            self.pintar_mensaje("has hecho nuevo record")
+
+            # pintar en pantalla "Tu puntación es de nivel.puntuacion" entras en la lista de records!"
+        else:
+            self.pintar_mensaje(
+                "esta vez no has estado entre los 10 mejores. Vuelve a intentarlo!!")
+        self.pintar_mensaje_barra()
+        # pintar en pantalla " "
+
+
+class Pantalla_records(Gestion_records):
+    def __init__(self, pantalla):
+        super().__init__(pantalla)
+
+    def bucle_principal(self):
+        super().bucle_principal()
+        print("bucle principal de Pantalla_Records")
+        es_record = False
+
+        salir = False
+        while not salir:
+            # 1 capturar los eventos
+            for evento in pg.event.get():
+                if evento.type == pg.QUIT:
+                    # ():
+                    return True
+                if self.barra_pulsada(evento):
+                    salir = True
+            # 2. Calcular estado de elementos y pintarlos elementos
+            self.pantalla.fill((0, 0, 99))
+            self.pintar_logo()
+
             self.pintar_records()
             # salir = self.empezar_partida()
             # 3. Mostrar los cambios (pintados) y controlar el reloj

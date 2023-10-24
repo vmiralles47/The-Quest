@@ -3,6 +3,7 @@ from random import randint, randrange
 
 import pygame as pg
 
+
 from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FACTOR_PUNTOS,
                FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
@@ -230,7 +231,7 @@ class Pantalla_puntos(Gestion_records):
 
     def bucle_principal(self, puntuacion):
         super().bucle_principal()
-        print("bucle principal de Pantalla_Records")
+        print("bucle principal de Pantalla_Puntos")
         es_record = False
         salir = False
         while not salir:
@@ -245,18 +246,20 @@ class Pantalla_puntos(Gestion_records):
             self.pantalla.fill((0, 0, 99))
             self.pintar_logo()
             es_record = self.comprobar_record(puntuacion)
+            pg.display.flip()
             if es_record:
                 nombre = self.pedir_nombre()
                 self.records.insertar_record(nombre, puntuacion)
                 salir = True
             # salir = self.empezar_partida()
             # 3. Mostrar los cambios (pintados) y controlar el reloj
-            pg.display.flip()
+            # pg.display.flip()
         return False
 
     def comprobar_record(self, puntuacion):
+
         if self.records.es_record(puntuacion):
-            self.pintar_mensaje("has hecho nuevo record")
+            self.pintar_mensaje("has hecho nuevo record, introduce tu nombre")
             self.pintar_mensaje_barra()
             return True
 
@@ -269,7 +272,25 @@ class Pantalla_puntos(Gestion_records):
         # pintar en pantalla " "
 
     def pedir_nombre(self):
-        return input("nombre ganador: ")
+        ruta = os.path.join("resources", "fonts", "Square.ttf")
+        tipo = pg.font.Font(ruta, 80)
+        salir = False
+        nombre = ""
+        while not salir:
+            for evento in pg.event.get():
+                if evento.type == pg.KEYDOWN:
+                    if evento.key == pg.K_RETURN:
+                        salir = True
+                        return nombre
+                    else:
+                        nombre += evento.unicode
+                        texto_imagen = tipo.render(
+                            nombre, True, COLOR_OBJETOS, (0, 0, 0))
+                        x = (ANCHO-texto_imagen.get_width())/3
+                        y = 5*(ALTO/6)
+
+                        self.pantalla.blit(texto_imagen, (x, y))
+                        pg.display.flip()
 
 
 class Pantalla_records(Gestion_records):

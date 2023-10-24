@@ -27,9 +27,9 @@ class Escena:
         if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
             return True
 
-    def pintar_mensaje(self, cadena):
+    def pintar_mensaje(self, cadena, tamanio):
         ruta = os.path.join("resources", "fonts", "Square.ttf")
-        tipo = pg.font.Font(ruta, 30)
+        tipo = pg.font.Font(ruta, tamanio)
         mensaje = cadena
         lineas = mensaje.splitlines()
         altura = tipo.get_height()
@@ -84,7 +84,7 @@ class Portada(Escena):
             self.pintar_logo()
             # pintar.backstory
             self.pintar_mensaje(
-                "Explora la galaxia en busca de nuevos mundos.\nEsquiva los obstáculos, aterriza y lleva\nuna nueva esperanza a la Humanidad")
+                "Explora la galaxia en busca de nuevos mundos.\nEsquiva los obstáculos, aterriza y lleva\nuna nueva esperanza a la Humanidad", 30)
             # pintar "pulsar SPACE_BAR para empezar"
             self.pintar_mensaje_barra()
 
@@ -166,7 +166,7 @@ class Nivel(Escena):
 
         print("Nivel.puntacion= ", Nivel.puntuacion)
         print("has superado el nivel")
-        self.pintar_mensaje("Has superado el nivel")
+        self.pintar_mensaje("Has superado el nivel", 60)
         self.pintar_mensaje_barra()
         return True
 
@@ -174,7 +174,7 @@ class Nivel(Escena):
 
         print("te has quedado sin vidas")
 
-        self.pintar_mensaje("has perdido")
+        self.pintar_mensaje("no te quedan naves", 60)
         self.pintar_mensaje_barra()
         return False
         # comprobar record
@@ -259,14 +259,15 @@ class Pantalla_puntos(Gestion_records):
     def comprobar_record(self, puntuacion):
 
         if self.records.es_record(puntuacion):
-            self.pintar_mensaje("has hecho nuevo record, introduce tu nombre")
+            self.pintar_mensaje(
+                "has hecho nuevo record.\nintroduce tu nombre", 45)
             self.pintar_mensaje_barra()
             return True
 
             # pintar en pantalla "Tu puntación es de nivel.puntuacion" entras en la lista de records!"
         else:
             self.pintar_mensaje(
-                "esta vez no has estado entre los 10 mejores. Vuelve a intentarlo!!")
+                "esta vez no has estado entre los 10 mejores.\nVuelve a intentarlo!!", 45)
             self.pintar_mensaje_barra()
             return False
         # pintar en pantalla " "
@@ -284,10 +285,12 @@ class Pantalla_puntos(Gestion_records):
                         return nombre
                     else:
                         nombre += evento.unicode
+                        if len(nombre) > 10:
+                            nombre = nombre[:10]
                         texto_imagen = tipo.render(
                             nombre, True, COLOR_OBJETOS, (0, 0, 0))
-                        x = (ANCHO-texto_imagen.get_width())/3
-                        y = 5*(ALTO/6)
+                        x = (ANCHO-texto_imagen.get_width())/2
+                        y = 5*(ALTO/8) + 30
 
                         self.pantalla.blit(texto_imagen, (x, y))
                         pg.display.flip()
@@ -325,10 +328,16 @@ class Pantalla_records(Gestion_records):
         ruta = os.path.join("resources", "fonts", "Square.ttf")
         tipo = pg.font.Font(ruta, 30)
         l = 0
+        # imprime columna nombres:
         for dupla in self.records.lista_records:
-            linea = f"{dupla[0]} ------- {str(dupla[1])}"
-            texto = tipo.render(linea, True, (230, 189, 40))
-            pos_x = (500)
-            pos_y = (ALTO/2) + (l*40)
+            cadena_nombre = f"{l+1} - {dupla[0]}"
+            cadena_puntos = "{}".format(str(dupla[1]))
+            texto_nombre = tipo.render(cadena_nombre, True, COLOR_OBJETOS)
+            texto_puntos = tipo.render(cadena_puntos, True, COLOR_OBJETOS)
+            nombre_x = ((3*ANCHO)/8)
+            nombre_y = ((3*ALTO)/8) + (l*40)
+            puntos_x = ((4*ANCHO)/7)
+            puntos_y = ((3*ALTO)/8) + (l*40)
             l += 1
-            self.pantalla.blit(texto, (pos_x, pos_y))
+            self.pantalla.blit(texto_nombre, (nombre_x, nombre_y))
+            self.pantalla.blit(texto_puntos, (puntos_x, puntos_y))

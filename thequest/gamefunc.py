@@ -7,7 +7,7 @@ from .escenas import Nivel, Portada, Pantalla_puntos, Pantalla_records
 class TheQuest:
     def __init__(self):
         pg.init()
-        self.pantalla = pg.display.set_mode((1500, ALTO))
+        self.pantalla = pg.display.set_mode((ANCHO, ALTO))
         # importar las escenas necesarias para jugar: INICIO Y JUEGO (records puede ser llamada tanto desde Inicio como Juego)
         # pasarles como argumento self.pantalla y self.records
         self.nivel = 1
@@ -16,7 +16,7 @@ class TheQuest:
         self.pantalla_records = Pantalla_records(self.pantalla)
 
     def jugar(self):
-
+        cerrar_juego = self.pantalla_records.bucle_principal()
         cerrar_juego = self.portada.bucle_principal()
         if cerrar_juego:
             print("cierro el juego")

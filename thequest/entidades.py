@@ -7,15 +7,27 @@ import pygame as pg
 from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, DURACION_TURNO, MARGEN_IZQ, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, VEL_NAVE, VEL_ASTER
 
 
-class Nave():
+class Nave(pg.sprite.Sprite):
 
     def __init__(self):
-        ruta = os.path.join("resources", "rocket_100_largo.png")
-        # self.imagen_nave es de tipo surface
-        self.imagen_nave = pg.image.load(ruta)
-        self.rect = self.imagen_nave.get_rect(midleft=(MARGEN_IZQ, ALTO/2))
+        super().__init__()
+        self.lista_imagenes = []
+        for i in range(9):
+            ruta = os.path.join("resources", "images",
+                                "starship", f"A_idle_000{i+1}.png")
+            # self.imagen_nave es de tipo surface
+            self.lista_imagenes.append(pg.image.load(ruta))
+        self.contador_img = 0
+        self.imagen = self.lista_imagenes[self.contador_img]
+
+        self.rect = self.imagen.get_rect(midleft=(MARGEN_IZQ, ALTO/2))
 
     def update(self):
+        self.contador_img += 1
+        if self.contador_img > 8:
+            self.contador_img = 0
+        self.imagen = self.lista_imagenes[self.contador_img]
+
         pulsadas = pg.key.get_pressed()
         if pulsadas[pg.K_UP]:
             self.rect.y -= VEL_NAVE

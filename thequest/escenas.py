@@ -189,7 +189,7 @@ class Nivel(Escena):
         pg.time.delay(1000)
 
     def pintar_nave(self):
-        self.pantalla.blit(self.jugador.imagen_nave, self.jugador.rect)
+        self.pantalla.blit(self.jugador.imagen, self.jugador.rect)
 
     def crear_campo_asteroides(self, nivel):
         campo_aster = []

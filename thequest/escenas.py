@@ -3,7 +3,7 @@ from random import randint, randrange
 
 import pygame as pg
 
-from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS,
+from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FACTOR_PUNTOS,
                FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
 
@@ -144,7 +144,8 @@ class Nivel(Escena):
                     if pg.Rect.colliderect(asteroide.rect, self.jugador.rect):
                         self.resolver_choque(asteroide)
                     if eliminado:
-                        self.marcador.incrementar(asteroide.tipo*10*self.nivel)
+                        self.marcador.incrementar(
+                            asteroide.tipo*FACTOR_PUNTOS*self.nivel)
                         print("asteroide eliminado tipo ", asteroide.tipo)
                         self.campo_asteroides.remove(asteroide)
 
@@ -154,15 +155,15 @@ class Nivel(Escena):
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
+        Nivel.puntuacion = self.marcador.total
         if subir_nivel:
-            Nivel.puntuacion = self.marcador.total
             Nivel.vidas = self.contador_vidas.total_vidas
         return False, subir_nivel
 
     def final_de_nivel(self):
         print("self.marcador.total = ", self.marcador.total)
 
-        print("Nivel.punutacion= ", Nivel.puntuacion)
+        print("Nivel.puntacion= ", Nivel.puntuacion)
         print("has superado el nivel")
         self.pintar_mensaje("Has superado el nivel")
         self.pintar_mensaje_barra()
@@ -231,7 +232,6 @@ class Pantalla_puntos(Gestion_records):
         super().bucle_principal()
         print("bucle principal de Pantalla_Records")
         es_record = False
-
         salir = False
         while not salir:
             # 1 capturar los eventos
@@ -244,8 +244,11 @@ class Pantalla_puntos(Gestion_records):
             # 2. Calcular estado de elementos y pintarlos elementos
             self.pantalla.fill((0, 0, 99))
             self.pintar_logo()
-            self.comprobar_record(puntuacion)
-
+            es_record = self.comprobar_record(puntuacion)
+            if es_record:
+                nombre = self.pedir_nombre()
+                self.records.insertar_record(nombre, puntuacion)
+                salir = True
             # salir = self.empezar_partida()
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
@@ -254,13 +257,19 @@ class Pantalla_puntos(Gestion_records):
     def comprobar_record(self, puntuacion):
         if self.records.es_record(puntuacion):
             self.pintar_mensaje("has hecho nuevo record")
+            self.pintar_mensaje_barra()
+            return True
 
             # pintar en pantalla "Tu puntación es de nivel.puntuacion" entras en la lista de records!"
         else:
             self.pintar_mensaje(
                 "esta vez no has estado entre los 10 mejores. Vuelve a intentarlo!!")
-        self.pintar_mensaje_barra()
+            self.pintar_mensaje_barra()
+            return False
         # pintar en pantalla " "
+
+    def pedir_nombre(self):
+        return input("nombre ganador: ")
 
 
 class Pantalla_records(Gestion_records):
@@ -270,7 +279,7 @@ class Pantalla_records(Gestion_records):
     def bucle_principal(self):
         super().bucle_principal()
         print("bucle principal de Pantalla_Records")
-        es_record = False
+        self.records.actualizar()
 
         salir = False
         while not salir:

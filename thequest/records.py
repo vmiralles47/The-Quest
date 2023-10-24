@@ -32,3 +32,6 @@ class Records:
         self.db.guardar(self.lista_records)
         self.lista_records = self.db.cargar()
         print("lista actualizada ", self.lista_records)
+
+    def actualizar(self):
+        self. lista_records = self.db.cargar()

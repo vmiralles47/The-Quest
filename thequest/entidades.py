@@ -1,10 +1,10 @@
 import os
 from random import randint, randrange
-
 import pygame as pg
 
-
-from . import ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS, DURACION_TURNO, MARGEN_IZQ, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, VEL_NAVE, VEL_ASTER
+from . import (ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS,
+               DURACION_TURNO, MARGEN_IZQ, NUM_VIDAS, ORIGEN_ASTER,
+               VEL_NAVE, VEL_ASTER)
 
 
 class Nave(pg.sprite.Sprite):
@@ -67,36 +67,46 @@ class Nave(pg.sprite.Sprite):
         pass
 
 
-class Asteroide():
+class Asteroide(pg.sprite.Sprite):
 
     def __init__(self, tipo, altura):
+        # tipo = 1, 2 o 3
+        super().__init__()
         self.tipo = tipo
-        self.radio = RAD_ASTER[tipo-1]
-        self.color = COLOR_OBJETOS
-        self.pos_x = ORIGEN_ASTER
-        self.pos_y = altura
+        self.imagenes = []
+        for i in range(16):
+            if i < 9:
+                ruta_img = os.path.join(
+                    "resources", "images", f"asteroid{self.tipo}", f"000{i+1}.png")
+            else:
+                ruta_img = os.path.join(
+                    "resources", "images", f"asteroid{self.tipo}", f"00{i+1}.png")
+            self.imagenes.append(pg.image.load(ruta_img))
+        self.contador = 0
+        self.imagen = self.imagenes[self.contador]
+        self.rect = self.imagen.get_rect(center=(ORIGEN_ASTER, altura))
         self.velocidad = VEL_ASTER[tipo-1]
         self.turno = randrange(0, DURACION_TURNO)
         # TODO: que los turnos estén mejor espaciados, no pueden coincidir, igual que las alturas
-        self.rect = pg.rect.Rect(0, 0, 0, 0)
+
         print("asteroide tipo ", self.tipo,
               "turno = ", self.turno,
-              "radio ", self.radio,
               "velocidad ", self.velocidad,
-              "altura ", self.pos_y)
+              )
 
     def update(self, nivel):
+        self.contador += 1
+        if self.contador > 15:
+            self.contador = 0
+        self.imagen = self.imagenes[self.contador]
+
         ha_salido = False
         self.turno = self.turno - 1
         if self.turno < 0:
-            self.pos_x -= self.velocidad*nivel
-        if self.pos_x < 0:
+            self.rect.centerx -= self.velocidad*nivel
+        if self.rect.centerx < 0:
             ha_salido = True
         return ha_salido
-
-    def pintar(self, pantalla):
-        self.rect = pg.draw.circle(pantalla, self.color,
-                                   (self.pos_x, self.pos_y), self.radio, width=2)
 
 
 class Marcador():

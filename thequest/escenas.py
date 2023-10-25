@@ -5,7 +5,7 @@ import pygame as pg
 
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FACTOR_PUNTOS,
-               FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RAD_ASTER, RADIO_MAX_ASTER,
+               FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
 
 from .entidades import Asteroide, Contador_Vidas, Marcador, Nave
@@ -141,8 +141,8 @@ class Nivel(Escena):
             else:
                 for asteroide in self.campo_asteroides:
                     eliminado = asteroide.update(self.nivel)
-                    asteroide.pintar(self.pantalla)
-                    if pg.Rect.colliderect(asteroide.rect, self.jugador.rect):
+                    self.pantalla.blit(asteroide.imagen, asteroide.rect)
+                    if pg.sprite.collide_rect(asteroide, self.jugador):
                         self.resolver_choque(asteroide)
                     if eliminado:
                         self.marcador.incrementar(
@@ -162,8 +162,9 @@ class Nivel(Escena):
         return False, subir_nivel
 
     def final_de_nivel(self):
+        # aqui irá lo de la nave rotando y el planeta
+        self.jugador.aterrizar()
         print("self.marcador.total = ", self.marcador.total)
-
         print("Nivel.puntacion= ", Nivel.puntuacion)
         print("has superado el nivel")
         self.pintar_mensaje("Has superado el nivel", 60)
@@ -201,14 +202,14 @@ class Nivel(Escena):
                 altura = Nivel.generar_altura(lista_alturas)
                 asteroide = Asteroide(r+1, altura)
                 campo_aster.append(asteroide)
-        print("Creados ", len(campo_aster), " asteorides")
+        print("Creados ", len(campo_aster), " asteroides")
         return campo_aster
 
     def generar_altura(lista):
         # es un método de Clase, por probar.
-        # genera una pos x aleatoria entre 0 y ALTO, tomada de 50 en 50 y que no puede repetirse
+        # genera una pos x aleatoria entre 0 y ALTO_MARCADOR, tomada de 50 en 50 y que no puede repetirse
 
-        altura = randrange((ALTO_MARCADOR+RADIO_MAX_ASTER),
+        altura = randrange((ALTO_MARCADOR+45),
                            ALTO)
         exit = False
         while exit == False:

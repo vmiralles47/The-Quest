@@ -1,22 +1,10 @@
-# modulo para gestionar los records con SQLite
-import os
+# modulo para gestionar la base de datos de la lista de records con SQLite
 import sqlite3
-
-
-"""
-nuestra clase hará los siguiente:
-    al ser instanciada, leerá los datos de la base de datos y los cargará en una lista 
-    
-    podrá insertar un nombre y un valor en el orden correspondiente segun puntuación. la puntuacion más baja se desechará
-    volverá a escribir la lista entera en la base de datos, para lo cual antes tiene que borrarla. 
-
-"""
 
 
 class DBManager:
 
     def __init__(self, ruta):
-        # self.ruta = os.path.join("data", "records.db")
         self.records = []
         self.ruta = ruta
 
@@ -43,7 +31,6 @@ class DBManager:
         conexion.close()
 
     def borrar_lista(self):
-        check_list = []
         consulta = "DELETE FROM records WHERE _rowid_ IN ('10', '9','8', '7','6','5', '4', '3', '2', '1')"
         conexion = sqlite3.connect(self.ruta)
         cursor = conexion.cursor()

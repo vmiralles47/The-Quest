@@ -16,6 +16,7 @@ class Records:
         self.lista_records = self.db.cargar()
         print(self.lista_records)
 
+    # TODO: si es record lo inserta directamente y devuelve True , nos ahorramos una instrucción desde Entidades.
     def es_record(self, puntuacion):
         """
         compara la puntuación con las de la lista y devuelve True si es record y hay que insertarlo

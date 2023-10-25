@@ -15,16 +15,21 @@ class Nave(pg.sprite.Sprite):
         # surface origen de la que coger los frames
         self.sheet_nave = pg.image.load(ruta)
         # la spritesheet tiene 3 filas de 16 frames cada una, de 100x100 pts.
+        ruta_explosion = os.path.join(
+            "resources", "images", "explosion_spritesheet_105x105_15fr.png")
+        self.sheet_explosion = pg.image.load(ruta_explosion)
+        self.surf_explosion = pg.Surface((105, 105))
+        self.surf_explosion.set_colorkey((0, 0, 0))
         self.current_frame = 0
         self.frames = 16
         self.frame_width = 100
         self.frame_height = 100
-        frame_area = (0, 0, self.frame_width, self.frame_height)
+        self.frame_area = (0, 0, self.frame_width, self.frame_height)
         # mi surface a mostrar:
         self.frame_surf = pg.Surface((self.frame_width, self.frame_height))
         alto_inicial = ((ALTO-ALTO_MARCADOR)/2)+(self.frame_height/2)
         self.frame_surf.blit(self.sheet_nave, (0, 0),
-                             area=frame_area)
+                             area=self.frame_area)
         self.rect = self.frame_surf.get_rect(
             midleft=(MARGEN_IZQ, alto_inicial))
         self.frame_surf.set_colorkey((0, 0, 0))
@@ -57,10 +62,6 @@ class Nave(pg.sprite.Sprite):
             self.rect.y += VEL_NAVE
             if self.rect.bottom > ALTO:
                 self.rect.bottom = ALTO
-
-    def explotar(self):
-        # carga la sec de imagenes de la explosión
-        self.rect.y = (ALTO-ALTO_MARCADOR)/2
 
     def aterrizar(self):
         # secuencia de movimiento de la nave en el final de nivel

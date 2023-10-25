@@ -185,7 +185,16 @@ class Nivel(Escena):
         print("colisión")
         self.contador_vidas.restar_vida()
         self.campo_asteroides.remove(asteroide)
-        self.jugador.explotar()
+
+        # carga la sec de imagenes de la explosión. la tira de explosiones tiene 22 fr
+        for frame in range(0, 22):
+            frame_area = (frame*105,
+                          0, 105, 105)
+            self.jugador.surf_explosion.blit(
+                self.jugador.sheet_explosion, (0, 0), area=frame_area)
+            self.pantalla.blit(self.jugador.surf_explosion, self.jugador.rect)
+            pg.display.flip()
+
         # cómo paro la partida?
         pg.time.delay(1000)
 

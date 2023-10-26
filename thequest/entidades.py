@@ -4,7 +4,7 @@ import pygame as pg
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS,
                DURACION_TURNO, MARGEN_IZQ, NUM_VIDAS, ORIGEN_ASTER,
-               VEL_NAVE, VEL_ASTER)
+               VEL_NAVE, VEL_ASTER, VEL_PLANETA)
 
 
 class Nave(pg.sprite.Sprite):
@@ -75,7 +75,7 @@ class Nave(pg.sprite.Sprite):
             self.imagen.blit(self.sheet_explosion, (0, 0), frame_area)
             return True
 
-    def update_aterrizaje(self):
+    def update_va_al_centro(self):
         # secuencia de movimiento de la nave en el final de nivel.va hasta el centro desde donde esté
         distancia_centro_y = (ALTO/2 - self.rect.centery)
         distancia_centro_x = (ANCHO/2 - self.rect.centerx)
@@ -83,13 +83,14 @@ class Nave(pg.sprite.Sprite):
         vel_x = int(distancia_centro_x / 10)
         self.rect.x += vel_x
         self.rect.y += vel_y
-        print(vel_x, vel_y, self.rect.y, self.rect.x)
+
         if int(self.rect.y+50) in range(int((ALTO/2)-10), int((ALTO/2)+10)):
             vel_y = 0
             vel_x = 0
+
             return True
         else:
-            return False  # cuando haya acabado de aterrizar
+            return False  # cuando esté listo para rotar
 
 
 class Asteroide(pg.sprite.Sprite):
@@ -176,3 +177,24 @@ class Fondo():
         # if self.rect.midright == ANCHO+1:
 
         self.rect.x -= Fondo.velocidad_fondo
+
+
+class Planeta():
+    def __init__(self, nivel):
+        ruta = os.path.join("resources", "images",
+                            "planets", f"planet{nivel}.png")
+        self.imagen = pg.image.load(ruta)
+        self.rect = self.imagen.get_rect()
+        ancho_imagen = self.imagen.get_width()
+        self.rect.centerx = ANCHO + ancho_imagen/2
+        self.rect.centery = ALTO/2
+        self.nivel = nivel
+
+    def update(self):
+        if self.nivel == 4:
+            if self.rect.centerx > ANCHO:
+                self.rect.centerx -= VEL_PLANETA
+        elif self.rect.centerx > ANCHO+(self.imagen.get_width()/5):
+            self.rect.centerx -= VEL_PLANETA
+        else:
+            return True

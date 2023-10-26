@@ -8,7 +8,7 @@ from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, 
                FPS, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RUTA_TIPOGRAFIA,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
 
-from .entidades import Asteroide, Contador_Vidas, Fondo, Marcador, Nave
+from .entidades import Asteroide, Contador_Vidas, Fondo, Marcador, Nave, Planeta
 from .records import Records
 
 
@@ -59,7 +59,7 @@ class Escena:
         x = (ANCHO - texto_imagen.get_width())/2
         y = (ALTO - texto_imagen.get_height())/4
         self.pantalla.blit(texto_imagen, (x, y))
-# pantalla inicial con título,la historia de THE QUEST y press space to continue/puede alternar con RECORDS
+        # pantalla inicial con título,la historia de THE QUEST y press space to continue/puede alternar con RECORDS
 
 
 class Portada(Escena):
@@ -104,11 +104,13 @@ class Nivel(Escena):
     def __init__(self, pantalla, nivel):
         super().__init__(pantalla)
         self.nivel = nivel
+        self.subir_nivel = False
         self.jugador = Nave()
         self.fondo1 = Fondo()
         self.fondo2 = Fondo()
         self.fondo2.rect.x = ANCHO+1  # se queda preparado en el limite derecho de la pantalla
         self.campo_asteroides = []
+        self.planeta = Planeta(self.nivel)
 
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
@@ -123,7 +125,8 @@ class Nivel(Escena):
         print("bucle principal de Juego")
         self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
         salir = False
-        ha_aterrizado = False
+        listo_para_aterrizar = False
+        fin_de_nivel = False
         while not salir:
             self.reloj.tick(FPS)
             # 1 capturar los eventos
@@ -136,14 +139,17 @@ class Nivel(Escena):
             # self.pantalla.fill((66, 66, 66))
             self.pintar_fondo()
             if self.contador_vidas.consultar() == 0:
-                subir_nivel = self.final_de_partida()
+                self.subir_nivel = self.final_de_partida()
             elif self.campo_asteroides == []:
                 print("lista asteroides vacía")
                 self.jugador.aterriza = True
-                ha_aterrizado = self.jugador.update_aterrizaje()
+                listo_para_aterrizar = self.jugador.update_va_al_centro()
                 self.pintar_frame_aterrizaje()
-                if ha_aterrizado:
-                    subir_nivel = self.resolver_final_de_nivel()
+                if listo_para_aterrizar:
+                    fin_de_nivel = self.planeta.update()
+                self.pintar_planeta()
+                if fin_de_nivel:
+                    self.subir_nivel = self.resolver_final_de_nivel()
             else:
                 for asteroide in self.campo_asteroides:
                     if asteroide.update(self.nivel):
@@ -168,9 +174,9 @@ class Nivel(Escena):
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
         Nivel.puntuacion = self.marcador.total
-        if subir_nivel:
+        if self.subir_nivel:
             Nivel.vidas = self.contador_vidas.total_vidas
-        return False, subir_nivel
+        return False, self.subir_nivel
 
     def crear_campo_asteroides(self, nivel):
         campo_aster = []
@@ -268,6 +274,10 @@ class Nivel(Escena):
 
         self.pantalla.blit(self.jugador.imagen,
                            self.jugador.rect)
+
+    def pintar_planeta(self):
+        self.pantalla.blit(self.planeta.imagen,
+                           self.planeta.rect)
 
     def resolver_choque(self, asteroide):
         self.contador_vidas.restar_vida()

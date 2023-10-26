@@ -120,6 +120,7 @@ class Nivel(Escena):
         self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
 
         salir = False
+
         while not salir:
             self.reloj.tick(FPS)
             # 1 capturar los eventos
@@ -130,30 +131,29 @@ class Nivel(Escena):
                     salir = True
 
             self.pantalla.fill((66, 66, 66))
-            self.jugador.update()
-            self.pintar_nave()
 
             if self.contador_vidas.consultar() == 0:
                 subir_nivel = self.final_de_partida()
-
             elif self.campo_asteroides == []:
                 subir_nivel = self.final_de_nivel()
             else:
+                self.jugador.update()
+                self.pintar_nave()
                 for asteroide in self.campo_asteroides:
-                    eliminado = asteroide.update(self.nivel)
-                    self.pantalla.blit(asteroide.imagen, asteroide.rect)
-                    if pg.sprite.collide_rect(asteroide, self.jugador):
-                        self.resolver_choque(asteroide)
-                    if eliminado:
+                    if asteroide.update(self.nivel):
                         self.marcador.incrementar(
                             asteroide.tipo*FACTOR_PUNTOS*self.nivel)
-                        print("asteroide eliminado tipo ", asteroide.tipo)
                         self.campo_asteroides.remove(asteroide)
-
+                    elif pg.sprite.collide_rect(asteroide, self.jugador):
+                        self.resolver_choque(asteroide)
+                    else:
+                        self.pantalla.blit(asteroide.imagen, asteroide.rect)
             self.marcador.pintar(self.pantalla)
             self.contador_vidas.pintar(self.pantalla)
-
+            if self.jugador.explota:
+                self.pintar_explosion()
             # 3. Mostrar los cambios (pintados) y controlar el reloj
+
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
         Nivel.puntuacion = self.marcador.total
@@ -182,21 +182,30 @@ class Nivel(Escena):
         # si es record pedir datos y guardar en base de datos
 
     def resolver_choque(self, asteroide):
-        print("colisión")
         self.contador_vidas.restar_vida()
         self.campo_asteroides.remove(asteroide)
-
+        self.jugador.explota = True
         # carga la sec de imagenes de la explosión. la tira de explosiones tiene 22 fr
+
+    def pintar_explosion(self):
+        self.jugador.frame_surf.fill((66, 66, 66))
+        self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
+        pg.display.flip()
         for frame in range(0, 22):
+
             frame_area = (frame*105,
                           0, 105, 105)
-            self.jugador.surf_explosion.blit(
+            self.jugador.frame_surf.blit(
                 self.jugador.sheet_explosion, (0, 0), area=frame_area)
-            self.pantalla.blit(self.jugador.surf_explosion, self.jugador.rect)
+            self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
             pg.display.flip()
+            pg.time.delay(75)
+        self.jugador.frame_surf.fill((66, 66, 66))
+        self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
 
+        self.jugador.explota = False
         # cómo paro la partida?
-        pg.time.delay(1000)
+        # pg.time.delay(1000)
 
     def pintar_nave(self):
         self.pantalla.blit(self.jugador.frame_surf,

@@ -14,6 +14,7 @@ class Nave(pg.sprite.Sprite):
         ruta = os.path.join("resources", "images", "spritesheet_starship.png")
         # surface origen de la que coger los frames
         self.sheet_nave = pg.image.load(ruta)
+
         # la spritesheet tiene 3 filas de 16 frames cada una, de 100x100 pts.
         ruta_explosion = os.path.join(
             "resources", "images", "explosion_spritesheet_105x105_15fr.png")
@@ -33,6 +34,7 @@ class Nave(pg.sprite.Sprite):
         self.rect = self.frame_surf.get_rect(
             midleft=(MARGEN_IZQ, alto_inicial))
         self.frame_surf.set_colorkey((0, 0, 0))
+        self.explota = False
 
     def update(self):
         if self.current_frame > self.frames - 1:
@@ -83,7 +85,7 @@ class Asteroide(pg.sprite.Sprite):
                 ruta_img = os.path.join(
                     "resources", "images", f"asteroid{self.tipo}", f"00{i+1}.png")
             self.imagenes.append(pg.image.load(ruta_img))
-        self.contador = 0
+        self.contador = randint(0, len(self.imagenes)-1)
         self.imagen = self.imagenes[self.contador]
         self.rect = self.imagen.get_rect(center=(ORIGEN_ASTER, altura))
         self.velocidad = VEL_ASTER[tipo-1]

@@ -31,7 +31,6 @@ class TheQuest:
                     pg.quit()
                 if subir_nivel == False:
                     break
-
         cerrar_juego = self.pantalla_puntos.bucle_principal(nivel.puntuacion)
         if cerrar_juego:
             print("saliendo del bucle de thequest.jugar")

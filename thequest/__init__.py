@@ -1,6 +1,11 @@
 # constantes de configuración de The Quest
+import os
 
 # Relativas al display
+
+fuente = "Square.ttf"
+RUTA_TIPOGRAFIA = os.path.join("resources", "fonts", fuente)
+
 ALTO = 720
 ANCHO = 1280
 
@@ -10,7 +15,7 @@ COLOR_OBJETOS = (255, 255, 255)
 
 DURACION_TURNO = 500
 
-FPS = 24
+FPS = 15
 
 MAX_NIVELES = 3
 NUM_VIDAS = 3

@@ -5,7 +5,7 @@ import pygame as pg
 
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FACTOR_PUNTOS,
-               FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER,
+               FPS, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RUTA_TIPOGRAFIA,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
 
 from .entidades import Asteroide, Contador_Vidas, Fondo, Marcador, Nave
@@ -115,13 +115,13 @@ class Nivel(Escena):
         print("Nivel.puntacion= ", Nivel.puntuacion)
         self.marcador = Marcador(Nivel.puntuacion)
         self.contador_vidas = Contador_Vidas(Nivel.vidas)
+        self.tipo = pg.font.Font(RUTA_TIPOGRAFIA, 60)
 
     def bucle_principal(self):
 
         super().bucle_principal()
         print("bucle principal de Juego")
         self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
-
         salir = False
 
         while not salir:
@@ -134,17 +134,14 @@ class Nivel(Escena):
                     salir = True
 
             # self.pantalla.fill((66, 66, 66))
-
+            self.pintar_fondo()
             if self.contador_vidas.consultar() == 0:
                 subir_nivel = self.final_de_partida()
             elif self.campo_asteroides == []:
-                subir_nivel = self.final_de_nivel()
+                self.jugador.aterriza = True
+                if self.jugador.update_aterrizaje():
+                    subir_nivel = self.resolver_final_de_nivel()
             else:
-
-                self.pintar_fondo()
-                self.jugador.update()
-                self.pintar_nave()
-
                 for asteroide in self.campo_asteroides:
                     if asteroide.update(self.nivel):
                         self.marcador.incrementar(
@@ -154,13 +151,18 @@ class Nivel(Escena):
                         self.resolver_choque(asteroide)
                     else:
                         self.pantalla.blit(asteroide.imagen, asteroide.rect)
+                if self.jugador.aterriza:
+                    self.pintar_frame_aterrizaje()
+                elif self.jugador.explota:
+                    self.jugador.explota = self.pintar_explosion()
+                else:
+                    self.jugador.update()
+                    self.pintar_nave()
 
-            self.marcador.pintar(self.pantalla)
-            self.contador_vidas.pintar(self.pantalla)
-            if self.jugador.explota:
-                self.pintar_explosion()
+            self.pintar_marcador()
+            self.pintar_contador_vidas()
+
             # 3. Mostrar los cambios (pintados) y controlar el reloj
-
             pg.display.flip()
         # lanzar el juego desde el nivel 1 hasta el máx niveles
         Nivel.puntuacion = self.marcador.total
@@ -179,16 +181,6 @@ class Nivel(Escena):
                 campo_aster.append(asteroide)
         print("Creados ", len(campo_aster), " asteroides")
         return campo_aster
-
-    def final_de_nivel(self):
-        # aqui irá lo de la nave rotando y el planeta
-        self.jugador.aterrizar()
-        print("self.marcador.total = ", self.marcador.total)
-        print("Nivel.puntacion= ", Nivel.puntuacion)
-        print("has superado el nivel")
-        self.pintar_mensaje("Has superado el nivel", 60)
-        self.pintar_mensaje_barra()
-        return True
 
     def final_de_partida(self):
 
@@ -215,30 +207,18 @@ class Nivel(Escena):
                 exit = True
         return altura
 
+    def pintar_contador_vidas(self):
+        vidas = str(self.contador_vidas.consultar())
+        texto = self.tipo.render(vidas, True, COLOR_OBJETOS)
+        pos_x = ANCHO - 100
+        pos_y = (ALTO_MARCADOR - self.tipo.get_height())/2
+        self.pantalla.blit(texto, (pos_x, pos_y))
+
     def pintar_explosion(self):
-        self.jugador.frame_surf.fill((66, 66, 66))
-        # ¢self.jugador.frame_surf.set_colorkey((66, 66, 66))
 
-        self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
-        pg.display.flip()
-
-        for frame in range(0, 22):
-
-            frame_area = (frame*105,
-                          0, 105, 105)
-            self.jugador.frame_surf.blit(
-                self.jugador.sheet_explosion, (0, 0), area=frame_area)
-            self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
-            pg.display.flip()
-            pg.time.delay(75)
-
-        self.jugador.frame_surf.fill((66, 66, 66))
-        self.jugador.frame_surf.set_colorkey((66, 66, 66))
-        self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
-
-        self.jugador.explota = False
-        # cómo paro la partida?
-        # pg.time.delay(1000)
+        fin_explosion = self.jugador.update_explosion()
+        self.pintar_frame_explosion()
+        return fin_explosion
 
     def pintar_fondo(self):
         if (self.fondo1.rect.right > ANCHO) and (self.fondo2.rect.left > ANCHO):
@@ -263,15 +243,45 @@ class Nivel(Escena):
             if self.fondo2.rect.right <= 0:
                 self.fondo2.rect.left = ANCHO+1
 
+    def pintar_frame_aterrizaje(self):
+
+        self.pantalla.blit(self.jugador.imagen,
+                           self.jugador.rect)
+
+        self.jugador.imagen.fill((0, 0, 0))
+
+    def pintar_frame_explosion(self):
+
+        self.pantalla.blit(self.jugador.imagen,
+                           self.jugador.rect)
+
+        self.jugador.imagen.fill((0, 0, 0))
+
+    def pintar_marcador(self):
+        vidas = str(self.marcador.consultar())
+        texto = self.tipo.render(vidas, True, COLOR_OBJETOS)
+        pos_x = MARGEN_IZQ
+        pos_y = (ALTO_MARCADOR - self.tipo.get_height())/2
+        self.pantalla.blit(texto, (pos_x, pos_y))
+
     def pintar_nave(self):
-        self.pantalla.blit(self.jugador.frame_surf,
+        self.pantalla.blit(self.jugador.imagen,
                            self.jugador.rect)
 
     def resolver_choque(self, asteroide):
         self.contador_vidas.restar_vida()
         self.campo_asteroides.remove(asteroide)
         self.jugador.explota = True
-        # carga la sec de imagenes de la explosión. la tira de explosiones tiene 22 fr
+        self.jugador.imagen.fill((0, 0, 0))
+
+    def resolver_final_de_nivel(self):
+        # self.jugador.aterrizar()
+        print("self.marcador.total = ", self.marcador.total)
+        print("Nivel.puntacion= ", Nivel.puntuacion)
+        print("has superado el nivel")
+        self.pintar_mensaje("Has superado el nivel", 60)
+        self.pintar_mensaje_barra()
+        return True
 
 
 class Gestion_records (Escena):

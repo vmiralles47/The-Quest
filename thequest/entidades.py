@@ -76,10 +76,20 @@ class Nave(pg.sprite.Sprite):
             return True
 
     def update_aterrizaje(self):
-        # secuencia de movimiento de la nave en el final de nivel
-        self.rect.x += 10
-        if self.rect.x > ANCHO:
-            return True  # cuando haya acabado de aterrizar
+        # secuencia de movimiento de la nave en el final de nivel.va hasta el centro desde donde esté
+        distancia_centro_y = (ALTO/2 - self.rect.centery)
+        distancia_centro_x = (ANCHO/2 - self.rect.centerx)
+        vel_y = int(distancia_centro_y / 10)
+        vel_x = int(distancia_centro_x / 10)
+        self.rect.x += vel_x
+        self.rect.y += vel_y
+        print(vel_x, vel_y, self.rect.y, self.rect.x)
+        if int(self.rect.y+50) in range(int((ALTO/2)-10), int((ALTO/2)+10)):
+            vel_y = 0
+            vel_x = 0
+            return True
+        else:
+            return False  # cuando haya acabado de aterrizar
 
 
 class Asteroide(pg.sprite.Sprite):

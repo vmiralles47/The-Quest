@@ -123,7 +123,7 @@ class Nivel(Escena):
         print("bucle principal de Juego")
         self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
         salir = False
-
+        ha_aterrizado = False
         while not salir:
             self.reloj.tick(FPS)
             # 1 capturar los eventos
@@ -138,8 +138,11 @@ class Nivel(Escena):
             if self.contador_vidas.consultar() == 0:
                 subir_nivel = self.final_de_partida()
             elif self.campo_asteroides == []:
+                print("lista asteroides vacía")
                 self.jugador.aterriza = True
-                if self.jugador.update_aterrizaje():
+                ha_aterrizado = self.jugador.update_aterrizaje()
+                self.pintar_frame_aterrizaje()
+                if ha_aterrizado:
                     subir_nivel = self.resolver_final_de_nivel()
             else:
                 for asteroide in self.campo_asteroides:
@@ -151,9 +154,8 @@ class Nivel(Escena):
                         self.resolver_choque(asteroide)
                     else:
                         self.pantalla.blit(asteroide.imagen, asteroide.rect)
-                if self.jugador.aterriza:
-                    self.pintar_frame_aterrizaje()
-                elif self.jugador.explota:
+
+                if self.jugador.explota:
                     self.jugador.explota = self.pintar_explosion()
                 else:
                     self.jugador.update()
@@ -244,11 +246,9 @@ class Nivel(Escena):
                 self.fondo2.rect.left = ANCHO+1
 
     def pintar_frame_aterrizaje(self):
-
+        print(self.jugador.rect)
         self.pantalla.blit(self.jugador.imagen,
                            self.jugador.rect)
-
-        self.jugador.imagen.fill((0, 0, 0))
 
     def pintar_frame_explosion(self):
 
@@ -265,6 +265,7 @@ class Nivel(Escena):
         self.pantalla.blit(texto, (pos_x, pos_y))
 
     def pintar_nave(self):
+
         self.pantalla.blit(self.jugador.imagen,
                            self.jugador.rect)
 

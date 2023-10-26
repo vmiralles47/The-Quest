@@ -8,7 +8,7 @@ from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, 
                FPS, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
 
-from .entidades import Asteroide, Contador_Vidas, Marcador, Nave
+from .entidades import Asteroide, Contador_Vidas, Fondo, Marcador, Nave
 from .records import Records
 
 
@@ -105,6 +105,9 @@ class Nivel(Escena):
         super().__init__(pantalla)
         self.nivel = nivel
         self.jugador = Nave()
+        self.fondo1 = Fondo()
+        self.fondo2 = Fondo()
+        self.fondo2.rect.x = ANCHO+1  # se queda preparado en el limite derecho de la pantalla
         self.campo_asteroides = []
 
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
@@ -130,15 +133,18 @@ class Nivel(Escena):
                 if self.barra_pulsada(evento):
                     salir = True
 
-            self.pantalla.fill((66, 66, 66))
+            # self.pantalla.fill((66, 66, 66))
 
             if self.contador_vidas.consultar() == 0:
                 subir_nivel = self.final_de_partida()
             elif self.campo_asteroides == []:
                 subir_nivel = self.final_de_nivel()
             else:
+
+                self.pintar_fondo()
                 self.jugador.update()
                 self.pintar_nave()
+
                 for asteroide in self.campo_asteroides:
                     if asteroide.update(self.nivel):
                         self.marcador.incrementar(
@@ -148,6 +154,7 @@ class Nivel(Escena):
                         self.resolver_choque(asteroide)
                     else:
                         self.pantalla.blit(asteroide.imagen, asteroide.rect)
+
             self.marcador.pintar(self.pantalla)
             self.contador_vidas.pintar(self.pantalla)
             if self.jugador.explota:
@@ -160,6 +167,18 @@ class Nivel(Escena):
         if subir_nivel:
             Nivel.vidas = self.contador_vidas.total_vidas
         return False, subir_nivel
+
+    def crear_campo_asteroides(self, nivel):
+        campo_aster = []
+        lista_alturas = []
+        # nivel 1 10 asteroides tipo 1, 10 asteroides tipo 2, 10 asteorides tipo 3
+        for i in range(0, ASTEROIDES_POR_NIVEL[nivel-1]):
+            for r in range(0, TIPOS_DE_ASTEROIDES):
+                altura = Nivel.generar_altura(lista_alturas)
+                asteroide = Asteroide(r+1, altura)
+                campo_aster.append(asteroide)
+        print("Creados ", len(campo_aster), " asteroides")
+        return campo_aster
 
     def final_de_nivel(self):
         # aqui irá lo de la nave rotando y el planeta
@@ -181,48 +200,6 @@ class Nivel(Escena):
         # comprobar record
         # si es record pedir datos y guardar en base de datos
 
-    def resolver_choque(self, asteroide):
-        self.contador_vidas.restar_vida()
-        self.campo_asteroides.remove(asteroide)
-        self.jugador.explota = True
-        # carga la sec de imagenes de la explosión. la tira de explosiones tiene 22 fr
-
-    def pintar_explosion(self):
-        self.jugador.frame_surf.fill((66, 66, 66))
-        self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
-        pg.display.flip()
-        for frame in range(0, 22):
-
-            frame_area = (frame*105,
-                          0, 105, 105)
-            self.jugador.frame_surf.blit(
-                self.jugador.sheet_explosion, (0, 0), area=frame_area)
-            self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
-            pg.display.flip()
-            pg.time.delay(75)
-        self.jugador.frame_surf.fill((66, 66, 66))
-        self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
-
-        self.jugador.explota = False
-        # cómo paro la partida?
-        # pg.time.delay(1000)
-
-    def pintar_nave(self):
-        self.pantalla.blit(self.jugador.frame_surf,
-                           self.jugador.rect)
-
-    def crear_campo_asteroides(self, nivel):
-        campo_aster = []
-        lista_alturas = []
-        # nivel 1 10 asteroides tipo 1, 10 asteroides tipo 2, 10 asteorides tipo 3
-        for i in range(0, ASTEROIDES_POR_NIVEL[nivel-1]):
-            for r in range(0, TIPOS_DE_ASTEROIDES):
-                altura = Nivel.generar_altura(lista_alturas)
-                asteroide = Asteroide(r+1, altura)
-                campo_aster.append(asteroide)
-        print("Creados ", len(campo_aster), " asteroides")
-        return campo_aster
-
     def generar_altura(lista):
         # es un método de Clase, por probar.
         # genera una pos x aleatoria entre 0 y ALTO_MARCADOR, tomada de 50 en 50 y que no puede repetirse
@@ -237,6 +214,64 @@ class Nivel(Escena):
                 lista.append(altura)
                 exit = True
         return altura
+
+    def pintar_explosion(self):
+        self.jugador.frame_surf.fill((66, 66, 66))
+        # ¢self.jugador.frame_surf.set_colorkey((66, 66, 66))
+
+        self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
+        pg.display.flip()
+
+        for frame in range(0, 22):
+
+            frame_area = (frame*105,
+                          0, 105, 105)
+            self.jugador.frame_surf.blit(
+                self.jugador.sheet_explosion, (0, 0), area=frame_area)
+            self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
+            pg.display.flip()
+            pg.time.delay(75)
+
+        self.jugador.frame_surf.fill((66, 66, 66))
+        self.jugador.frame_surf.set_colorkey((66, 66, 66))
+        self.pantalla.blit(self.jugador.frame_surf, self.jugador.rect)
+
+        self.jugador.explota = False
+        # cómo paro la partida?
+        # pg.time.delay(1000)
+
+    def pintar_fondo(self):
+        if (self.fondo1.rect.right > ANCHO) and (self.fondo2.rect.left > ANCHO):
+            self.fondo1.update()
+            self.pantalla.blit(self.fondo1.imagen, self.fondo1.rect)
+        elif (0 < self.fondo1.rect.right <= ANCHO):
+            self.fondo1.update()
+            self.fondo2.update()
+            self.pantalla.blit(self.fondo1.imagen, self.fondo1.rect)
+            self.pantalla.blit(self.fondo2.imagen, self.fondo2.rect)
+            if self.fondo1.rect.right <= 0:
+                self.fondo1.rect.left = ANCHO
+        elif (self.fondo2.rect.right > ANCHO):
+            self.fondo2.update()
+            self.pantalla.blit(self.fondo2.imagen, self.fondo2.rect)
+
+        elif (0 < self.fondo2.rect.right <= ANCHO):
+            self.fondo2.update()
+            self.fondo1.update()
+            self.pantalla.blit(self.fondo1.imagen, self.fondo1.rect)
+            self.pantalla.blit(self.fondo2.imagen, self.fondo2.rect)
+            if self.fondo2.rect.right <= 0:
+                self.fondo2.rect.left = ANCHO+1
+
+    def pintar_nave(self):
+        self.pantalla.blit(self.jugador.frame_surf,
+                           self.jugador.rect)
+
+    def resolver_choque(self, asteroide):
+        self.contador_vidas.restar_vida()
+        self.campo_asteroides.remove(asteroide)
+        self.jugador.explota = True
+        # carga la sec de imagenes de la explosión. la tira de explosiones tiene 22 fr
 
 
 class Gestion_records (Escena):

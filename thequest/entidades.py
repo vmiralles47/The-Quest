@@ -156,3 +156,19 @@ class Contador_Vidas():
 
     def resetear(self):
         self.total_vidas = NUM_VIDAS
+
+
+class Fondo():
+    # el bucle de fondo infinito lo hago con la misma imagen cargada dos veces
+    velocidad_fondo = 10
+
+    def __init__(self):
+        ruta = os.path.join("resources", "images",
+                            "background", "starmap_2020_4096x720.jpg")
+        self.imagen = pg.image.load(ruta)
+        self.rect = self.imagen.get_rect(midleft=(0, ALTO/2))
+
+    def update(self):
+        # if self.rect.midright == ANCHO+1:
+
+        self.rect.x -= Fondo.velocidad_fondo

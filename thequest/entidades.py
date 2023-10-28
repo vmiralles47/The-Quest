@@ -11,6 +11,7 @@ class Nave(pg.sprite.Sprite):
 
     def __init__(self):
         super().__init__()
+
         ruta = os.path.join("resources", "images", "spritesheet_starship.png")
         # surface origen de la que coger los frames
         self.sheet_nave = pg.image.load(ruta)
@@ -40,6 +41,9 @@ class Nave(pg.sprite.Sprite):
         self.explota = False
         self.contador_angulo = 1
         self.angulo_rotado = 0
+
+        ruta_sound = os.path.join("resources", "sounds", "fireball.mp3")
+        self.sonido_explosion = pg.mixer.Sound(ruta_sound)
 
     def update(self):
         if self.current_frame > self.frames - 1:

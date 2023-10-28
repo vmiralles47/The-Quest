@@ -65,6 +65,9 @@ class Escena:
 class Portada(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
+        ruta = os.path.join("resources", "images",
+                            "background", "fondo_portada.jpg")
+        self.imagen = pg.image.load(ruta)
 
     def bucle_principal(self):
         super().bucle_principal()
@@ -79,7 +82,8 @@ class Portada(Escena):
                 if self.barra_pulsada(evento):
                     salir = True
             # 2. Calcular estado de elementos y pintarlos elementos
-            self.pantalla.fill((8, 50, 163))
+            # self.pantalla.fill((8, 50, 163))
+            self.pantalla.blit(self.imagen, (0, 0))
             # pintar.logo
             self.pintar_logo()
             # pintar.backstory
@@ -139,6 +143,7 @@ class Nivel(Escena):
 
             # self.pantalla.fill((66, 66, 66))
             self.pintar_fondo()
+
             if self.contador_vidas.consultar() == 0:
                 self.subir_nivel = self.final_de_partida()
             elif self.campo_asteroides == []:  # se acaba el nivel
@@ -233,6 +238,7 @@ class Nivel(Escena):
 
         fin_explosion = self.jugador.update_explosion()
         self.pintar_frame_explosion()
+
         return fin_explosion
 
     def pintar_fondo(self):
@@ -288,6 +294,7 @@ class Nivel(Escena):
                            self.planeta.rect)
 
     def resolver_choque(self, asteroide):
+        self.jugador.sonido_explosion.play()
         self.contador_vidas.restar_vida()
         self.campo_asteroides.remove(asteroide)
         self.jugador.explota = True
@@ -307,6 +314,9 @@ class Gestion_records (Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
         self.records = Records()
+        ruta = os.path.join("resources", "images",
+                            "background", "fondo_records.jpg")
+        self.imagen = pg.image.load(ruta)
 
 
 class Pantalla_puntos(Gestion_records):
@@ -327,7 +337,8 @@ class Pantalla_puntos(Gestion_records):
                 if self.barra_pulsada(evento):
                     salir = True
             # 2. Calcular estado de elementos y pintarlos elementos
-            self.pantalla.fill((0, 0, 99))
+            # self.pantalla.fill((0, 0, 99))
+            self.pantalla.blit(self.imagen, (0, 0))
             self.pintar_logo()
             es_record = self.comprobar_record(puntuacion)
             pg.display.flip()
@@ -399,7 +410,8 @@ class Pantalla_records(Gestion_records):
                 if self.barra_pulsada(evento):
                     salir = True
             # 2. Calcular estado de elementos y pintarlos elementos
-            self.pantalla.fill((0, 0, 99))
+            # self.pantalla.fill((0, 0, 99))
+            self.pantalla.blit(self.imagen, (0, 0))
             self.pintar_logo()
 
             self.pintar_records()

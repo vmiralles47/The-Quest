@@ -280,7 +280,7 @@ class Nivel(Escena):
     def pintar_nave_rotando(self):
 
         self.pantalla.blit(self.jugador.imagen_aux,
-                           self.jugador.rect)
+                           self.jugador.rect_aux)
         pg.time.delay(30)
 
     def pintar_planeta(self):

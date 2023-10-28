@@ -23,10 +23,13 @@ class Nave(pg.sprite.Sprite):
         # mi surface a mostrar:
         self.imagen = pg.Surface((self.frame_width, self.frame_height))
         self.imagen_aux = pg.Surface((self.frame_width, self.frame_height))
+        self.imagen_aux2 = pg.Surface((self.frame_width, self.frame_height))
         alto_inicial = ((ALTO-ALTO_MARCADOR)/2)+(self.frame_height/2)
         self.imagen.blit(self.sheet_nave, (0, 0),
                          area=self.frame_area)
         self.rect = self.imagen.get_rect(
+            midleft=(MARGEN_IZQ, alto_inicial))
+        self.rect_aux = self.imagen.get_rect(
             midleft=(MARGEN_IZQ, alto_inicial))
         self.imagen.set_colorkey((0, 0, 0))
         # spritesheet de la explosion, una fila de 21 elementos de 105x105 cada uno
@@ -85,12 +88,16 @@ class Nave(pg.sprite.Sprite):
             self.imagen_aux = pg.transform.rotate(
                 self.imagen, angulo_rotacion*self.contador_angulo
             )
+            self.rect_aux = self.imagen_aux.get_rect(center=(self.rect.center))
             self.angulo_rotado += angulo_rotacion
             self.contador_angulo += 1
+
+            print("centro rect nvae", self.rect.center)
+            print("cenrto rect aux", self.rect_aux.center)
             print("ROTACION:", self.angulo_rotado)
             return False
-        elif self.rect.centerx < lugar_aterrizaje+100:
-            self.rect.centerx += VEL_NAVE
+        elif self.rect_aux.centerx < lugar_aterrizaje+100:
+            self.rect_aux.centerx += VEL_NAVE
         else:
             return True
 
@@ -211,7 +218,7 @@ class Planeta():
 
     def update(self):
         if self.nivel == 4:
-            if self.rect.centerx > ANCHO:
+            if self.rect.centerx > ANCHO/8:
                 self.rect.centerx -= VEL_PLANETA
         elif self.rect.centerx > ANCHO+(self.imagen.get_width()/5):
             self.rect.centerx -= VEL_PLANETA

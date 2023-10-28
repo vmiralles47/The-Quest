@@ -22,6 +22,7 @@ class Nave(pg.sprite.Sprite):
         self.frame_area = (0, 0, self.frame_width, self.frame_height)
         # mi surface a mostrar:
         self.imagen = pg.Surface((self.frame_width, self.frame_height))
+        self.imagen_aux = pg.Surface((self.frame_width, self.frame_height))
         alto_inicial = ((ALTO-ALTO_MARCADOR)/2)+(self.frame_height/2)
         self.imagen.blit(self.sheet_nave, (0, 0),
                          area=self.frame_area)
@@ -34,7 +35,8 @@ class Nave(pg.sprite.Sprite):
         self.sheet_explosion = pg.image.load(ruta_explosion)
         self.contador_explosion = 0
         self.explota = False
-        self.aterriza = False
+        self.contador_angulo = 1
+        self.angulo_rotado = 0
 
     def update(self):
         if self.current_frame > self.frames - 1:
@@ -75,6 +77,23 @@ class Nave(pg.sprite.Sprite):
             self.imagen.blit(self.sheet_explosion, (0, 0), frame_area)
             return True
 
+    def update_rotacion(self, lugar_aterrizaje):
+        angulo_rotacion = 9
+
+        if self.angulo_rotado < 180:
+
+            self.imagen_aux = pg.transform.rotate(
+                self.imagen, angulo_rotacion*self.contador_angulo
+            )
+            self.angulo_rotado += angulo_rotacion
+            self.contador_angulo += 1
+            print("ROTACION:", self.angulo_rotado)
+            return False
+        elif self.rect.centerx < lugar_aterrizaje+100:
+            self.rect.centerx += VEL_NAVE
+        else:
+            return True
+
     def update_va_al_centro(self):
         # secuencia de movimiento de la nave en el final de nivel.va hasta el centro desde donde esté
         distancia_centro_y = (ALTO/2 - self.rect.centery)
@@ -87,10 +106,10 @@ class Nave(pg.sprite.Sprite):
         if int(self.rect.y+50) in range(int((ALTO/2)-10), int((ALTO/2)+10)):
             vel_y = 0
             vel_x = 0
-
-            return True
+            print("estoy en el centro")
+            return True  # ya está en el centro. Lisyo esté listo para rotar
         else:
-            return False  # cuando esté listo para rotar
+            return False
 
 
 class Asteroide(pg.sprite.Sprite):
@@ -196,5 +215,4 @@ class Planeta():
                 self.rect.centerx -= VEL_PLANETA
         elif self.rect.centerx > ANCHO+(self.imagen.get_width()/5):
             self.rect.centerx -= VEL_PLANETA
-        else:
-            return True
+        return self.rect.left

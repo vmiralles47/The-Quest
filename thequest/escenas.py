@@ -127,6 +127,7 @@ class Nivel(Escena):
         salir = False
         listo_para_aterrizar = False
         fin_de_nivel = False
+        x_aterrizaje = ANCHO
         while not salir:
             self.reloj.tick(FPS)
             # 1 capturar los eventos
@@ -140,15 +141,21 @@ class Nivel(Escena):
             self.pintar_fondo()
             if self.contador_vidas.consultar() == 0:
                 self.subir_nivel = self.final_de_partida()
-            elif self.campo_asteroides == []:
+            elif self.campo_asteroides == []:  # se acaba el nivel
                 print("lista asteroides vacía")
-                self.jugador.aterriza = True
-                listo_para_aterrizar = self.jugador.update_va_al_centro()
-                self.pintar_frame_aterrizaje()
-                if listo_para_aterrizar:
-                    fin_de_nivel = self.planeta.update()
-                self.pintar_planeta()
-                if fin_de_nivel:
+                if not listo_para_aterrizar:
+                    listo_para_aterrizar = self.jugador.update_va_al_centro()
+                    self.pintar_nave()
+                    x_aterrizaje = self.planeta.update()
+                    self.pintar_planeta()
+                elif not fin_de_nivel:
+                    fin_de_nivel = self.jugador.update_rotacion(x_aterrizaje)
+                    self.pintar_planeta()
+                    self.pintar_nave_rotando()
+
+                else:
+                    self.pintar_planeta()
+                    self.pintar_nave_rotando()
                     self.subir_nivel = self.resolver_final_de_nivel()
             else:
                 for asteroide in self.campo_asteroides:
@@ -251,11 +258,6 @@ class Nivel(Escena):
             if self.fondo2.rect.right <= 0:
                 self.fondo2.rect.left = ANCHO+1
 
-    def pintar_frame_aterrizaje(self):
-        print(self.jugador.rect)
-        self.pantalla.blit(self.jugador.imagen,
-                           self.jugador.rect)
-
     def pintar_frame_explosion(self):
 
         self.pantalla.blit(self.jugador.imagen,
@@ -274,6 +276,12 @@ class Nivel(Escena):
 
         self.pantalla.blit(self.jugador.imagen,
                            self.jugador.rect)
+
+    def pintar_nave_rotando(self):
+
+        self.pantalla.blit(self.jugador.imagen_aux,
+                           self.jugador.rect)
+        pg.time.delay(30)
 
     def pintar_planeta(self):
         self.pantalla.blit(self.planeta.imagen,

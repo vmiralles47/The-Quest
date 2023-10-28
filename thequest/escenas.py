@@ -68,18 +68,23 @@ class Portada(Escena):
         ruta = os.path.join("resources", "images",
                             "background", "fondo_portada.jpg")
         self.imagen = pg.image.load(ruta)
+        ruta_musica = os.path.join("resources", "sounds", "musica_portada.mp3")
+        self.musica_portada = pg.mixer.Sound(ruta_musica)
 
     def bucle_principal(self):
         super().bucle_principal()
         print("bucle principal de Portada")
         salir = False
+        self.musica_portada.play()
         while not salir:
             # 1 capturar los eventos
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
                     # ():
+
                     return True
                 if self.barra_pulsada(evento):
+                    self.musica_portada.fadeout(1000)
                     salir = True
             # 2. Calcular estado de elementos y pintarlos elementos
             # self.pantalla.fill((8, 50, 163))
@@ -152,6 +157,8 @@ class Nivel(Escena):
                     listo_para_aterrizar = self.jugador.update_va_al_centro()
                     self.pintar_nave()
                     x_aterrizaje = self.planeta.update()
+                    if self.nivel == 4:
+                        self.planeta.play_music_nivel4()
                     self.pintar_planeta()
                 elif not fin_de_nivel:
                     fin_de_nivel = self.jugador.update_rotacion(x_aterrizaje)
@@ -394,12 +401,14 @@ class Pantalla_puntos(Gestion_records):
 class Pantalla_records(Gestion_records):
     def __init__(self, pantalla):
         super().__init__(pantalla)
+        ruta_musica = os.path.join("resources", "sounds", "musica_portada.mp3")
+        self.musica = pg.mixer.Sound(ruta_musica)
 
     def bucle_principal(self):
         super().bucle_principal()
         print("bucle principal de Pantalla_Records")
         self.records.actualizar()
-
+        self.musica.play()
         salir = False
         while not salir:
             # 1 capturar los eventos
@@ -408,6 +417,7 @@ class Pantalla_records(Gestion_records):
                     # ():
                     return True
                 if self.barra_pulsada(evento):
+                    self.musica.stop()
                     salir = True
             # 2. Calcular estado de elementos y pintarlos elementos
             # self.pantalla.fill((0, 0, 99))
@@ -424,6 +434,7 @@ class Pantalla_records(Gestion_records):
         ruta = os.path.join("resources", "fonts", "Square.ttf")
         tipo = pg.font.Font(ruta, 30)
         l = 0
+
         # imprime columna nombres:
         for dupla in self.records.lista_records:
             cadena_nombre = f"{l+1} - {dupla[0]}"

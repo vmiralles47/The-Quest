@@ -219,6 +219,11 @@ class Planeta():
         self.rect.centerx = ANCHO + ancho_imagen/2
         self.rect.centery = ALTO/2
         self.nivel = nivel
+        if nivel == 4:
+            ruta_musica = os.path.join("resources", "sounds",
+                                       "musica_nivel4.mp3")
+            self.musica_nivel4 = pg.mixer.Sound(ruta_musica)
+        self.play_music = False
 
     def update(self):
         if self.nivel == 4:
@@ -227,3 +232,8 @@ class Planeta():
         elif self.rect.centerx > ANCHO+(self.imagen.get_width()/5):
             self.rect.centerx -= VEL_PLANETA
         return self.rect.left
+
+    def play_music_nivel4(self):
+        if self.play_music == False:
+            self.musica_nivel4.play()
+            self.play_music = True

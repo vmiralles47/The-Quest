@@ -148,8 +148,6 @@ class Nivel(Escena):
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
                     return True
-                if self.barra_pulsada(evento):
-                    salir = True
 
             # self.pantalla.fill((66, 66, 66))
             self.pintar_fondo()
@@ -169,11 +167,10 @@ class Nivel(Escena):
                     fin_de_nivel = self.jugador.update_rotacion(x_aterrizaje)
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
-
                 else:
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
-                    self.subir_nivel = self.resolver_final_de_nivel()
+                    self.subir_nivel, salir = self.resolver_final_de_nivel()
             else:
                 for asteroide in self.campo_asteroides:
                     if asteroide.update(self.nivel):
@@ -321,13 +318,17 @@ class Nivel(Escena):
         self.jugador.imagen.fill((0, 0, 0))
 
     def resolver_final_de_nivel(self):
+        salir = False
         # self.jugador.aterrizar()
         print("self.marcador.total = ", self.marcador.total)
         print("Nivel.puntacion= ", Nivel.puntuacion)
         print("has superado el nivel")
         self.pintar_mensaje("Has superado el nivel", 60)
         self.pintar_mensaje_barra()
-        return True
+        for evento in pg.event.get():
+            if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
+                salir = True
+        return True, salir
 
 
 class Gestion_records (Escena):

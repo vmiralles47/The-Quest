@@ -107,6 +107,16 @@ class Nave(pg.sprite.Sprite):
 
     def update_va_al_centro(self):
         # secuencia de movimiento de la nave en el final de nivel.va hasta el centro desde donde esté
+        if self.current_frame > self.frames - 1:
+            self.current_frame = 0
+        else:
+            self.current_frame += 1
+
+        frame_area = (self.current_frame*self.frame_width,
+                      0, self.frame_width, self.frame_height)
+        self.imagen.blit(
+            self.sheet_nave, (0, 0), area=frame_area)
+
         distancia_centro_y = (ALTO/2 - self.rect.centery)
         distancia_centro_x = (ANCHO/2 - self.rect.centerx)
         vel_y = int(distancia_centro_y / 10)

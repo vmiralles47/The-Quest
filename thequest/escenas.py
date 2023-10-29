@@ -118,6 +118,7 @@ class Nivel(Escena):
         super().__init__(pantalla)
         self.nivel = nivel
         self.subir_nivel = False
+        self.flag_fin_de_nivel = False
         self.jugador = Nave()
         self.fondo1 = Fondo()
         self.fondo2 = Fondo()
@@ -129,6 +130,7 @@ class Nivel(Escena):
         self.pantalla = pantalla
         if nivel == 1:
             Nivel.puntuacion = 0
+            Nivel.vidas = NUM_VIDAS
         print("Nivel.puntacion= ", Nivel.puntuacion)
         self.marcador = Marcador(Nivel.puntuacion)
         self.contador_niveles = Contador_Niveles(MAX_NIVELES)
@@ -141,8 +143,9 @@ class Nivel(Escena):
         print("bucle principal de Juego")
         self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
         salir = False
-        listo_para_aterrizar = False
-        fin_de_nivel = False
+        preparado_para_rotar = False
+
+        ha_aterrizado = False
         x_aterrizaje = ANCHO
         while not salir:
             self.reloj.tick(FPS)
@@ -156,40 +159,56 @@ class Nivel(Escena):
 
             if self.contador_vidas.consultar() == 0:
                 self.subir_nivel = self.final_de_partida()
-            elif self.campo_asteroides == []:  # se acaba el nivel
-                print("lista asteroides vacía")
-                if not listo_para_aterrizar:
-                    listo_para_aterrizar = self.jugador.update_va_al_centro()
+            elif self.flag_fin_de_nivel:  # se acaba el nivel
+                if not preparado_para_rotar:
+                    preparado_para_rotar = self.jugador.update_va_al_centro()
                     self.pintar_nave()
+                    # mientras va al centro para comenzar la rotacion, sale el planeta
+                    # la coord de aterrizaje depende de las dimensiones del planeta
                     x_aterrizaje = self.planeta.update()
+                    # en el planeta del nivel extra pasa algo especial
                     if self.nivel == 4:
                         self.planeta.play_music_nivel4()
-                    self.pintar_planeta()
-                elif not fin_de_nivel:
-                    fin_de_nivel = self.jugador.update_rotacion(x_aterrizaje)
+                elif not ha_aterrizado:
+                    ha_aterrizado = self.jugador.update_rotacion(x_aterrizaje)
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
-                else:
+                else:  # ya ha aterrizado
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
                     salir = self.resolver_final_de_nivel()
                     if salir:
                         if self.nivel == 4:
                             self.planeta.musica_nivel4.stop()
-
             else:
                 for asteroide in self.campo_asteroides:
-                    if asteroide.update(self.nivel):
-                        self.marcador.incrementar(
-                            asteroide.tipo*FACTOR_PUNTOS*self.nivel)
+                    sale = asteroide.update(self.nivel)
+                    choca = pg.sprite.collide_rect(asteroide, self.jugador)
+                    if sale or choca:
                         self.campo_asteroides.remove(asteroide)
-                    elif pg.sprite.collide_rect(asteroide, self.jugador):
-                        self.resolver_choque(asteroide)
+                        if self.campo_asteroides == []:
+                            print("lista asteroides vacía")
+                            self.flag_fin_de_nivel = True
+                        if sale:
+                            self.marcador.incrementar(
+                                asteroide.tipo*FACTOR_PUNTOS*self.nivel)
+                        if choca:
+                            # self.resolver_choque(asteroide)
+                            self.jugador.sonido_explosion.play()
+                            self.contador_vidas.restar_vida()
+                            if not self.flag_fin_de_nivel:
+                                for asteroide in self.campo_asteroides:
+                                    asteroide.turno = asteroide.turno+100
+                            self.jugador.explota = True
+                            self.jugador.imagen.fill((0, 0, 0))
                     else:
                         self.pantalla.blit(asteroide.imagen, asteroide.rect)
 
                 if self.jugador.explota:
-                    self.jugador.explota = self.pintar_explosion()
+                    self.jugador.explota = self.jugador.update_explosion()
+                    self.pintar_nave()
+                    self.jugador.imagen.fill((0, 0, 0))
+
                 else:
                     self.jugador.update()
                     self.pintar_nave()
@@ -257,13 +276,6 @@ class Nivel(Escena):
         pos_y = (ALTO_MARCADOR - self.tipo.get_height())/2
         self.pantalla.blit(texto, (pos_x, pos_y))
 
-    def pintar_explosion(self):
-
-        fin_explosion = self.jugador.update_explosion()
-        self.pintar_frame_explosion()
-
-        return fin_explosion
-
     def pintar_fondo(self):
         if (self.fondo1.rect.right > ANCHO) and (self.fondo2.rect.left > ANCHO):
             self.fondo1.update()
@@ -287,12 +299,7 @@ class Nivel(Escena):
             if self.fondo2.rect.right <= 0:
                 self.fondo2.rect.left = ANCHO+1
 
-    def pintar_frame_explosion(self):
-
-        self.pantalla.blit(self.jugador.imagen,
-                           self.jugador.rect)
-
-        self.jugador.imagen.fill((0, 0, 0))
+    # def pintar_frame_explosion(self):
 
     def pintar_marcador(self):
         vidas = str(self.marcador.consultar())
@@ -316,12 +323,19 @@ class Nivel(Escena):
         self.pantalla.blit(self.planeta.imagen,
                            self.planeta.rect)
 
+    """
     def resolver_choque(self, asteroide):
         self.jugador.sonido_explosion.play()
         self.contador_vidas.restar_vida()
         self.campo_asteroides.remove(asteroide)
+        if self.campo_asteroides == []:
+            self.flag_fin_de_nivel = True
+        else:
+            for asteroide in self.campo_asteroides:
+                asteroide.turno = asteroide.turno+100
         self.jugador.explota = True
         self.jugador.imagen.fill((0, 0, 0))
+    """
 
     def resolver_final_de_nivel(self):
 

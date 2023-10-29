@@ -44,7 +44,4 @@ class TheQuest:
             else:
                 cerrar_juego = self.pantalla_records.bucle_principal()
 
-                if cerrar_juego == False:
-                    nivel.puntuacion = 0
-
         pg.quit()

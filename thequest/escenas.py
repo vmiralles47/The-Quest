@@ -127,6 +127,8 @@ class Nivel(Escena):
 
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
+        if nivel == 1:
+            Nivel.puntuacion = 0
         print("Nivel.puntacion= ", Nivel.puntuacion)
         self.marcador = Marcador(Nivel.puntuacion)
         self.contador_niveles = Contador_Niveles(MAX_NIVELES)

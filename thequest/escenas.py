@@ -170,7 +170,11 @@ class Nivel(Escena):
                 else:
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
-                    self.subir_nivel, salir = self.resolver_final_de_nivel()
+                    salir = self.resolver_final_de_nivel()
+                    if salir:
+                        if self.nivel == 4:
+                            self.planeta.musica_nivel4.stop()
+
             else:
                 for asteroide in self.campo_asteroides:
                     if asteroide.update(self.nivel):
@@ -318,17 +322,18 @@ class Nivel(Escena):
         self.jugador.imagen.fill((0, 0, 0))
 
     def resolver_final_de_nivel(self):
-        salir = False
+
         # self.jugador.aterrizar()
         print("self.marcador.total = ", self.marcador.total)
         print("Nivel.puntacion= ", Nivel.puntuacion)
-        print("has superado el nivel")
+        print("has superado el nivel", self.nivel)
         self.pintar_mensaje("Has superado el nivel", 60)
         self.pintar_mensaje_barra()
+        self.subir_nivel = True
+        print("esperando evento barra")
         for evento in pg.event.get():
             if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
-                salir = True
-        return True, salir
+                return True
 
 
 class Gestion_records (Escena):

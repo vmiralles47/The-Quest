@@ -1,6 +1,6 @@
 import os
 from .dbmanager import DBManager
-MAX_RECORDS = 10
+from . import MAX_RECORDS
 
 
 class Records:

@@ -3,7 +3,7 @@ from random import randint, randrange
 import pygame as pg
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS,
-               DURACION_TURNO, MARGEN_IZQ, NUM_VIDAS, ORIGEN_ASTER,
+               DURACION_TURNO, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER,
                VEL_NAVE, VEL_ASTER, VEL_PLANETA)
 
 
@@ -177,6 +177,20 @@ class Marcador():
 
     def consultar(self):
         return self.total
+
+
+class Contador_Niveles():
+    def __init__(self, niveles_iniciales):
+        self.total_niveles = niveles_iniciales
+
+    def restar_nivel(self):
+        self.total_niveles -= 1
+
+    def consultar(self):
+        return self.total_niveles
+
+    def resetear(self):
+        self.total_niveles = MAX_NIVELES
 
 
 class Contador_Vidas():

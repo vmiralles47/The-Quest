@@ -8,7 +8,7 @@ from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, 
                FPS, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RUTA_TIPOGRAFIA,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
 
-from .entidades import Asteroide, Contador_Vidas, Fondo, Marcador, Nave, Planeta
+from .entidades import Asteroide, Contador_Niveles, Contador_Vidas, Fondo, Marcador, Nave, Planeta
 from .records import Records
 
 
@@ -27,17 +27,21 @@ class Escena:
         if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
             return True
 
-    def pintar_mensaje(self, cadena, tamanio):
+    def pintar_mensaje(self, cadena, tamanio, altura_opc=0):
         ruta = os.path.join("resources", "fonts", "Square.ttf")
         tipo = pg.font.Font(ruta, tamanio)
         mensaje = cadena
         lineas = mensaje.splitlines()
-        altura = tipo.get_height()
+        altura_tipo = tipo.get_height()
         contador = 0
+        if altura_opc != 0:
+            factor_altura = altura_opc
+        else:
+            factor_altura = ALTO/2
         for linea in lineas:
             texto_imagen = tipo.render(linea, True, COLOR_OBJETOS)
             x = (ANCHO-texto_imagen.get_width())/2
-            y = (ALTO/2) + contador*altura
+            y = factor_altura + contador*altura_tipo
             contador += 1
             self.pantalla.blit(texto_imagen, (x, y))
 
@@ -125,6 +129,7 @@ class Nivel(Escena):
         self.pantalla = pantalla
         print("Nivel.puntacion= ", Nivel.puntuacion)
         self.marcador = Marcador(Nivel.puntuacion)
+        self.contador_niveles = Contador_Niveles(MAX_NIVELES)
         self.contador_vidas = Contador_Vidas(Nivel.vidas)
         self.tipo = pg.font.Font(RUTA_TIPOGRAFIA, 60)
 
@@ -187,6 +192,7 @@ class Nivel(Escena):
                     self.pintar_nave()
 
             self.pintar_marcador()
+            self.pintar_contador_niveles()
             self.pintar_contador_vidas()
 
             # 3. Mostrar los cambios (pintados) y controlar el reloj
@@ -233,6 +239,13 @@ class Nivel(Escena):
                 lista.append(altura)
                 exit = True
         return altura
+
+    def pintar_contador_niveles(self):
+        texto_nivel = f"NIVEL {str(self.nivel)}"
+        texto = self.tipo.render(texto_nivel, True, COLOR_OBJETOS)
+        pos_x = ANCHO - 500
+        pos_y = (ALTO_MARCADOR - self.tipo.get_height())/2
+        self.pantalla.blit(texto, (pos_x, pos_y))
 
     def pintar_contador_vidas(self):
         vidas = str(self.contador_vidas.consultar())
@@ -362,8 +375,8 @@ class Pantalla_puntos(Gestion_records):
 
         if self.records.es_record(puntuacion):
             self.pintar_mensaje(
-                "has hecho nuevo record.\nintroduce tu nombre", 45)
-            self.pintar_mensaje_barra()
+                "has hecho nuevo record.\nintroduce tu nombre\ny pulsa INTRO", 45)
+
             return True
 
             # pintar en pantalla "Tu puntación es de nivel.puntuacion" entras en la lista de records!"
@@ -375,16 +388,27 @@ class Pantalla_puntos(Gestion_records):
         # pintar en pantalla " "
 
     def pedir_nombre(self):
+        alto_tipo_nombre = 80
         ruta = os.path.join("resources", "fonts", "Square.ttf")
-        tipo = pg.font.Font(ruta, 80)
+        tipo = pg.font.Font(ruta, alto_tipo_nombre)
+
         salir = False
         nombre = ""
         while not salir:
+
             for evento in pg.event.get():
                 if evento.type == pg.KEYDOWN:
                     if evento.key == pg.K_RETURN:
                         salir = True
                         return nombre
+                    if evento.key == pg.K_BACKSPACE:
+                        nombre = nombre[:-1]
+                        texto_imagen = tipo.render(
+                            nombre, True, COLOR_OBJETOS, (0, 0, 0))
+                        x = (ANCHO-texto_imagen.get_width())/2
+                        y = 5*(ALTO/8) + 80
+
+                        self.pantalla.blit(texto_imagen, (x, y))
                     else:
                         nombre += evento.unicode
                         if len(nombre) > 10:
@@ -392,10 +416,10 @@ class Pantalla_puntos(Gestion_records):
                         texto_imagen = tipo.render(
                             nombre, True, COLOR_OBJETOS, (0, 0, 0))
                         x = (ANCHO-texto_imagen.get_width())/2
-                        y = 5*(ALTO/8) + 30
-
+                        y = 5*(ALTO/8) + 80
                         self.pantalla.blit(texto_imagen, (x, y))
-                        pg.display.flip()
+                    pg.display.flip()
+                    texto_imagen.fill((0, 0, 0))
 
 
 class Pantalla_records(Gestion_records):
@@ -416,9 +440,11 @@ class Pantalla_records(Gestion_records):
                 if evento.type == pg.QUIT:
                     # ():
                     return True
-                if self.barra_pulsada(evento):
+                if evento.type == pg.KEYDOWN and evento.key == pg.K_s:
                     self.musica.stop()
                     salir = True
+                elif evento.type == pg.KEYDOWN and evento.key == pg.K_n:
+                    return True
             # 2. Calcular estado de elementos y pintarlos elementos
             # self.pantalla.fill((0, 0, 99))
             self.pantalla.blit(self.imagen, (0, 0))
@@ -426,6 +452,9 @@ class Pantalla_records(Gestion_records):
 
             self.pintar_records()
             # salir = self.empezar_partida()
+            self.pintar_mensaje(
+                "¿Juegas otra vez? (S/N)", 45, altura_opc=(3*ALTO)/4)
+
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()
         return False

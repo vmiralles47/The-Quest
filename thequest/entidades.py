@@ -104,7 +104,7 @@ class Nave(pg.sprite.Sprite):
             print("cenrto rect aux", self.rect_aux.center)
             print("ROTACION:", self.angulo_rotado)
             return False
-        elif self.rect_aux.centerx < lugar_aterrizaje+100:
+        elif self.rect_aux.centerx < ANCHO - ((ANCHO - lugar_aterrizaje)/2):
             self.rect_aux.centerx += VEL_NAVE
         else:
             return True
@@ -223,7 +223,7 @@ class Contador_Vidas():
 
 class Fondo():
     # el bucle de fondo infinito lo hago con la misma imagen cargada dos veces
-    velocidad_fondo = 10
+    velocidad_fondo = 8
 
     def __init__(self):
         ruta = os.path.join("resources", "images",

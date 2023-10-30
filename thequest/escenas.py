@@ -164,11 +164,14 @@ class Nivel(Escena):
                 salir = self.final_de_partida()
             elif self.flag_fin_de_nivel:  # se acaba el nivel
                 if not preparado_para_rotar:
-                    preparado_para_rotar = self.jugador.update_va_al_centro()
+                    preparado_para_rotar = (
+                        self.jugador.update_va_al_centro() and
+                        self.planeta.rect.centerx <= ANCHO)
                     self.pintar_nave()
                     # mientras va al centro para comenzar la rotacion, sale el planeta
                     # la coord de aterrizaje depende de las dimensiones del planeta
                     x_aterrizaje = self.planeta.update()
+                    self.pintar_planeta()
                     # en el planeta del nivel extra pasa algo especial
                     if self.nivel == 4:
                         self.planeta.play_music_nivel4()

@@ -125,6 +125,9 @@ class Nivel(Escena):
         self.fondo2.rect.x = ANCHO+1  # se queda preparado en el limite derecho de la pantalla
         self.campo_asteroides = []
         self.planeta = Planeta(self.nivel)
+        ruta_musica = os.path.join(
+            "resources", "sounds", "musica_findenivel.mp3")
+        self.musica_findenivel = pg.mixer.Sound(ruta_musica)
 
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
@@ -176,10 +179,16 @@ class Nivel(Escena):
                 else:  # ya ha aterrizado
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
-                    salir = self.resolver_final_de_nivel()
+                    self.resolver_final_de_nivel()
+                    for evento in pg.event.get():
+                        if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
+                            salir = True
+
                     if salir:
                         if self.nivel == 4:
                             self.planeta.musica_nivel4.stop()
+                        else:
+                            self.musica_findenivel.fadeout(500)
             else:
                 for asteroide in self.campo_asteroides:
                     sale = asteroide.update(self.nivel)
@@ -189,16 +198,23 @@ class Nivel(Escena):
                         if self.campo_asteroides == []:
                             print("lista asteroides vacía")
                             self.flag_fin_de_nivel = True
+                            if self.nivel != 4:
+                                self.musica_findenivel.play()
+                            self.jugador.sonido_reactor.stop()
+                            self.jugador.sonido_reactor_on = False
                         if sale:
                             self.marcador.incrementar(
                                 asteroide.tipo*FACTOR_PUNTOS*self.nivel)
                         if choca:
                             # self.resolver_choque(asteroide)
+
                             self.jugador.sonido_explosion.play()
+                            self.jugador.sonido_reactor.stop()
+                            self.jugador.sonido_reactor_on = False
                             self.contador_vidas.restar_vida()
                             if not self.flag_fin_de_nivel:
                                 for asteroide in self.campo_asteroides:
-                                    asteroide.rect.x = ORIGEN_ASTER
+                                    asteroide.rect.x += ORIGEN_ASTER
                             self.jugador.explota = True
                             self.jugador.imagen.fill((0, 0, 0))
                     else:
@@ -211,6 +227,10 @@ class Nivel(Escena):
 
                 else:
                     self.jugador.update()
+                    if not self.flag_fin_de_nivel:
+                        if not self.jugador.sonido_reactor_on:
+                            self.jugador.sonido_reactor.play()
+                            self.jugador.sonido_reactor_on = True
                     self.pintar_nave()
 
             self.pintar_marcador()
@@ -352,9 +372,6 @@ class Nivel(Escena):
         self.pintar_mensaje_barra()
         self.subir_nivel = True
         print("esperando evento barra")
-        for evento in pg.event.get():
-            if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
-                return True
 
 
 class Gestion_records (Escena):
@@ -452,7 +469,7 @@ class Pantalla_puntos(Gestion_records):
 class Pantalla_records(Gestion_records):
     def __init__(self, pantalla):
         super().__init__(pantalla)
-        ruta_musica = os.path.join("resources", "sounds", "musica_portada.mp3")
+        ruta_musica = os.path.join("resources", "sounds", "musica_records.mp3")
         self.musica = pg.mixer.Sound(ruta_musica)
 
     def bucle_principal(self):

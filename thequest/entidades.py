@@ -44,6 +44,10 @@ class Nave(pg.sprite.Sprite):
 
         ruta_sound = os.path.join("resources", "sounds", "fireball.mp3")
         self.sonido_explosion = pg.mixer.Sound(ruta_sound)
+        ruta_sonidoreactor = os.path.join(
+            "resources", "sounds", "motor_nave.mp3")
+        self.sonido_reactor = pg.mixer.Sound(ruta_sonidoreactor)
+        self.sonido_reactor_on = False
 
     def update(self):
         if self.current_frame > self.frames - 1:
@@ -250,10 +254,7 @@ class Planeta():
         self.play_music = False
 
     def update(self):
-        if self.nivel == 4:
-            if self.rect.centerx > ANCHO/8:
-                self.rect.centerx -= VEL_PLANETA
-        elif self.rect.centerx > ANCHO+(self.imagen.get_width()/5):
+        if self.rect.centerx > ANCHO:
             self.rect.centerx -= VEL_PLANETA
         return self.rect.left
 

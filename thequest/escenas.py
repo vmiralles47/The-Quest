@@ -158,7 +158,7 @@ class Nivel(Escena):
             self.pintar_fondo()
 
             if self.contador_vidas.consultar() == 0:
-                self.subir_nivel = self.final_de_partida()
+                salir = self.final_de_partida()
             elif self.flag_fin_de_nivel:  # se acaba el nivel
                 if not preparado_para_rotar:
                     preparado_para_rotar = self.jugador.update_va_al_centro()
@@ -198,7 +198,7 @@ class Nivel(Escena):
                             self.contador_vidas.restar_vida()
                             if not self.flag_fin_de_nivel:
                                 for asteroide in self.campo_asteroides:
-                                    asteroide.turno = asteroide.turno+100
+                                    asteroide.rect.x = ORIGEN_ASTER
                             self.jugador.explota = True
                             self.jugador.imagen.fill((0, 0, 0))
                     else:
@@ -243,6 +243,11 @@ class Nivel(Escena):
 
         self.pintar_mensaje("no te quedan naves", 60)
         self.pintar_mensaje_barra()
+        print("esperando evento barra")
+
+        for evento in pg.event.get():
+            if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
+                return True
         return False
         # comprobar record
         # si es record pedir datos y guardar en base de datos

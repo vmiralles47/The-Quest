@@ -401,25 +401,17 @@ class Pantalla_puntos(Gestion_records):
         print("bucle principal de Pantalla_Puntos")
         es_record = self.records.es_record(puntuacion)
         salir = False
-
         while not salir:
             # 1 capturar los eventos
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
-                    # ():
                     return True
-                if not self.pide_nombre and self.barra_pulsada(evento):
-                    salir = True
-            # 2. Calcular estado de elementos y pintarlos elementos
-            # self.pantalla.fill((0, 0, 99))
             self.pantalla.blit(self.fondo, (0, 0))
             self.pintar_logo()
-
             if es_record:
                 self.pintar_mensaje(
                     "has hecho nuevo record.\nintroduce tu nombre\ny pulsa INTRO", 45)
                 if self.pide_nombre:
-
                     imagen_nombre = self.tipo.render(
                         self.nombre, True, COLOR_OBJETOS, (0, 0, 0))
                     self.rect_fondo = imagen_nombre.get_rect(
@@ -434,6 +426,11 @@ class Pantalla_puntos(Gestion_records):
                 self.pintar_mensaje(
                     "esta vez no has estado entre los 10 mejores.\nVuelve a intentarlo!!", 45)
                 self.pintar_mensaje_barra()
+                for evento in pg.event.get():
+                    if evento.type == pg.QUIT:
+                        return True
+                    if self.barra_pulsada(evento):
+                        salir = True
             # salir = self.empezar_partida()
             # 3. Mostrar los cambios (pintados) y controlar el reloj
             pg.display.flip()

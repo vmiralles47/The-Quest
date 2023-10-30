@@ -165,6 +165,7 @@ class Nivel(Escena):
                 for evento in pg.event.get():
                     if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
                         salir = True
+
             elif self.flag_fin_de_nivel:  # se acaba el nivel
                 if not preparado_para_rotar:
                     preparado_para_rotar = (
@@ -419,8 +420,10 @@ class Pantalla_puntos(Gestion_records):
                     self.pantalla.blit(
                         imagen_nombre, self.rect_fondo)
                     self.nombre = self.pedir_nombre()
+                    print(self.nombre, len(self.nombre))
                 else:
-                    self.records.insertar_record(self.nombre, puntuacion)
+                    nombre = self.nombre[:-1]
+                    self.records.insertar_record(nombre, puntuacion)
                     salir = True
             else:
                 self.pintar_mensaje(
@@ -440,6 +443,7 @@ class Pantalla_puntos(Gestion_records):
         for evento in pg.event.get():
             if evento.type == pg.KEYDOWN:
                 if evento.key == pg.K_RETURN:
+
                     self.pide_nombre = False
                 if evento.key == pg.K_BACKSPACE:
                     self.nombre = self.nombre[:-1]

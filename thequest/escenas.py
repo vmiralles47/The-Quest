@@ -5,7 +5,7 @@ import pygame as pg
 
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FACTOR_PUNTOS,
-               FPS, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RUTA_TIPOGRAFIA,
+               FPS, MARGEN_IZQ, MAX_CARACTERES, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RUTA_TIPOGRAFIA,
                TIPOS_DE_ASTEROIDES, VEL_ASTER)
 
 from .entidades import Asteroide, Contador_Niveles, Contador_Vidas, Fondo, Marcador, Nave, Planeta
@@ -161,7 +161,10 @@ class Nivel(Escena):
             self.pintar_fondo()
 
             if self.contador_vidas.consultar() == 0:
-                salir = self.final_de_partida()
+                self.final_de_partida()
+                for evento in pg.event.get():
+                    if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
+                        salir = True
             elif self.flag_fin_de_nivel:  # se acaba el nivel
                 if not preparado_para_rotar:
                     preparado_para_rotar = (
@@ -268,9 +271,6 @@ class Nivel(Escena):
         self.pintar_mensaje_barra()
         print("esperando evento barra")
 
-        for evento in pg.event.get():
-            if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
-                return True
         return False
         # comprobar record
         # si es record pedir datos y guardar en base de datos
@@ -383,90 +383,74 @@ class Gestion_records (Escena):
         self.records = Records()
         ruta = os.path.join("resources", "images",
                             "background", "fondo_records.jpg")
-        self.imagen = pg.image.load(ruta)
+        self.fondo = pg.image.load(ruta)
 
 
 class Pantalla_puntos(Gestion_records):
     def __init__(self, pantalla):
         super().__init__(pantalla)
+        alto_tipo_nombre = 80
+        ruta = os.path.join("resources", "fonts", "Square.ttf")
+        self.tipo = pg.font.Font(ruta, alto_tipo_nombre)
+        # me hace falta un fondo negro sobre el que escribir para que funcione bien el borrado de letras
+        self.nombre = ""  # un caracter ancho cualquiera
+        self.pide_nombre = True
 
     def bucle_principal(self, puntuacion):
         super().bucle_principal()
         print("bucle principal de Pantalla_Puntos")
-        es_record = False
+        es_record = self.records.es_record(puntuacion)
         salir = False
+
         while not salir:
             # 1 capturar los eventos
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
                     # ():
                     return True
-                if self.barra_pulsada(evento):
+                if not self.pide_nombre and self.barra_pulsada(evento):
                     salir = True
             # 2. Calcular estado de elementos y pintarlos elementos
             # self.pantalla.fill((0, 0, 99))
-            self.pantalla.blit(self.imagen, (0, 0))
+            self.pantalla.blit(self.fondo, (0, 0))
             self.pintar_logo()
-            es_record = self.comprobar_record(puntuacion)
-            pg.display.flip()
+
             if es_record:
-                nombre = self.pedir_nombre()
-                self.records.insertar_record(nombre, puntuacion)
-                salir = True
+                self.pintar_mensaje(
+                    "has hecho nuevo record.\nintroduce tu nombre\ny pulsa INTRO", 45)
+                if self.pide_nombre:
+
+                    imagen_nombre = self.tipo.render(
+                        self.nombre, True, COLOR_OBJETOS, (0, 0, 0))
+                    self.rect_fondo = imagen_nombre.get_rect(
+                        center=(ANCHO/2, 5*(ALTO/8) + 120))
+                    self.pantalla.blit(
+                        imagen_nombre, self.rect_fondo)
+                    self.nombre = self.pedir_nombre()
+                else:
+                    self.records.insertar_record(self.nombre, puntuacion)
+                    salir = True
+            else:
+                self.pintar_mensaje(
+                    "esta vez no has estado entre los 10 mejores.\nVuelve a intentarlo!!", 45)
+                self.pintar_mensaje_barra()
             # salir = self.empezar_partida()
             # 3. Mostrar los cambios (pintados) y controlar el reloj
-            # pg.display.flip()
+            pg.display.flip()
         return False
 
-    def comprobar_record(self, puntuacion):
-
-        if self.records.es_record(puntuacion):
-            self.pintar_mensaje(
-                "has hecho nuevo record.\nintroduce tu nombre\ny pulsa INTRO", 45)
-
-            return True
-
-            # pintar en pantalla "Tu puntación es de nivel.puntuacion" entras en la lista de records!"
-        else:
-            self.pintar_mensaje(
-                "esta vez no has estado entre los 10 mejores.\nVuelve a intentarlo!!", 45)
-            self.pintar_mensaje_barra()
-            return False
-        # pintar en pantalla " "
-
     def pedir_nombre(self):
-        alto_tipo_nombre = 80
-        ruta = os.path.join("resources", "fonts", "Square.ttf")
-        tipo = pg.font.Font(ruta, alto_tipo_nombre)
-
-        salir = False
-        nombre = ""
-        while not salir:
-
-            for evento in pg.event.get():
-                if evento.type == pg.KEYDOWN:
-                    if evento.key == pg.K_RETURN:
-                        salir = True
-                        return nombre
-                    if evento.key == pg.K_BACKSPACE:
-                        nombre = nombre[:-1]
-                        texto_imagen = tipo.render(
-                            nombre, True, COLOR_OBJETOS, (0, 0, 0))
-                        x = (ANCHO-texto_imagen.get_width())/2
-                        y = 5*(ALTO/8) + 80
-
-                        self.pantalla.blit(texto_imagen, (x, y))
-                    else:
-                        nombre += evento.unicode
-                        if len(nombre) > 10:
-                            nombre = nombre[:10]
-                        texto_imagen = tipo.render(
-                            nombre, True, COLOR_OBJETOS, (0, 0, 0))
-                        x = (ANCHO-texto_imagen.get_width())/2
-                        y = 5*(ALTO/8) + 80
-                        self.pantalla.blit(texto_imagen, (x, y))
-                    pg.display.flip()
-                    texto_imagen.fill((0, 0, 0))
+        for evento in pg.event.get():
+            if evento.type == pg.KEYDOWN:
+                if evento.key == pg.K_RETURN:
+                    self.pide_nombre = False
+                if evento.key == pg.K_BACKSPACE:
+                    self.nombre = self.nombre[:-1]
+                else:
+                    self.nombre += evento.unicode
+                    if len(self.nombre) > 10:
+                        self.nombre = self.nombre[:10]
+        return self.nombre
 
 
 class Pantalla_records(Gestion_records):
@@ -494,7 +478,7 @@ class Pantalla_records(Gestion_records):
                     return True
             # 2. Calcular estado de elementos y pintarlos elementos
             # self.pantalla.fill((0, 0, 99))
-            self.pantalla.blit(self.imagen, (0, 0))
+            self.pantalla.blit(self.fondo, (0, 0))
             self.pintar_logo()
 
             self.pintar_records()

@@ -5,7 +5,7 @@ import pygame as pg
 
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, DURACION_TURNO,
-               FACTOR_PUNTOS, FPS, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER,
+               FACTOR_PUNTOS, FPS, MARGEN_IZQ, MAX_NIVELES, MENSAJE_PORTADA, NUM_VIDAS, ORIGEN_ASTER,
                PUNTOS_POR_PLANETA, RUTA_TIPOGRAFIA, TIPOS_DE_ASTEROIDES, VEL_NAVE)
 
 from .entidades import Asteroide, Contador_Niveles, Contador_Vidas, Fondo, Marcador, Nave, Planeta
@@ -16,6 +16,7 @@ class Escena:
     def __init__(self, pantalla):
         self.pantalla = pantalla
         self.reloj = pg.time.Clock()
+        pg.init()
 
     def bucle_principal(self):
         """
@@ -84,7 +85,6 @@ class Portada(Escena):
             # 1 capturar los eventos
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
-                    # ():
 
                     return True
                 if self.barra_pulsada(evento):
@@ -96,8 +96,7 @@ class Portada(Escena):
             # pintar.logo
             self.pintar_logo()
             # pintar.backstory
-            self.pintar_mensaje(
-                "Explora la galaxia en busca de nuevos mundos.\nEsquiva los obstáculos, aterriza y lleva\nuna nueva esperanza a la Humanidad", 30)
+            self.pintar_mensaje(MENSAJE_PORTADA, 40, altura_opc=(ALTO/2) - 80)
             # pintar "pulsar SPACE_BAR para empezar"
             self.pintar_mensaje_barra()
 
@@ -147,6 +146,7 @@ class Nivel(Escena):
         print("bucle principal de Juego")
         self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
         salir = False
+        espera_barra = False
         preparado_para_rotar = False
         ha_aterrizado = False
         x_aterrizaje = ANCHO
@@ -156,15 +156,15 @@ class Nivel(Escena):
             for evento in pg.event.get():
                 if evento.type == pg.QUIT:
                     return True
-
+                if espera_barra:
+                    if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
+                        salir = True
             # self.pantalla.fill((66, 66, 66))
             self.pintar_fondo()
 
             if self.contador_vidas.consultar() == 0:
                 self.final_de_partida()
-                for evento in pg.event.get():
-                    if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
-                        salir = True
+                espera_barra = True
 
             elif self.flag_fin_de_nivel:  # se acaba el nivel
                 if not preparado_para_rotar:
@@ -187,10 +187,12 @@ class Nivel(Escena):
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
                     self.resolver_final_de_nivel()
+                    """
                     for evento in pg.event.get():
                         if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
                             salir = True
-
+                    """
+                    espera_barra = True
                     if salir:
                         if self.nivel == 4:
                             self.planeta.musica_nivel4.stop()
@@ -202,16 +204,11 @@ class Nivel(Escena):
                     choca = pg.sprite.collide_rect(asteroide, self.jugador)
                     if sale or choca:
                         self.campo_asteroides.remove(asteroide)
-                        if self.campo_asteroides == []:
-                            print("lista asteroides vacía")
-                            self.flag_fin_de_nivel = True
-                            if self.nivel != 4:
-                                self.musica_findenivel.play()
-                            self.jugador.sonido_reactor.stop()
-                            self.jugador.sonido_reactor_on = False
+
                         if sale:
                             self.marcador.incrementar(
                                 asteroide.tipo*FACTOR_PUNTOS*self.nivel)
+
                         if choca:
                             # self.resolver_choque(asteroide)
 
@@ -224,6 +221,14 @@ class Nivel(Escena):
                                     asteroide.rect.x += ORIGEN_ASTER
                             self.jugador.explota = True
                             self.jugador.imagen.fill((0, 0, 0))
+
+                        if self.campo_asteroides == [] and self.contador_vidas.consultar() > 0:
+                            print("lista asteroides vacía")
+                            self.flag_fin_de_nivel = True
+                            if self.nivel != 4:
+                                self.musica_findenivel.play()
+                            self.jugador.sonido_reactor.stop()
+                            self.jugador.sonido_reactor_on = False
                     else:
                         self.pantalla.blit(asteroide.imagen, asteroide.rect)
 
@@ -483,7 +488,7 @@ class Pantalla_records(Gestion_records):
         self.musica.play()
         salir = False
         a_portada = True
-        pg.time.set_timer(pg.KEYUP, 10000)
+        pg.time.set_timer(pg.K_0, 60000)
         # pg.time.set_timer(pg.K_s, 3000)
         while not salir:
             # 1 capturar los eventos
@@ -493,7 +498,7 @@ class Pantalla_records(Gestion_records):
                 if evento.type == pg.QUIT:
                     # ():
                     return True
-                if evento.type == pg.KEYUP or (evento.type == pg.KEYDOWN and evento.key == pg.K_s):
+                if evento.type == pg.K_0 or (evento.type == pg.KEYDOWN and evento.key == pg.K_s):
                     self.musica.stop()
                     salir = True
                 elif evento.type == pg.KEYDOWN and evento.key == pg.K_n:

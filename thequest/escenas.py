@@ -5,8 +5,8 @@ import pygame as pg
 
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FACTOR_PUNTOS,
-               FPS, MARGEN_IZQ, MAX_CARACTERES, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RUTA_TIPOGRAFIA,
-               TIPOS_DE_ASTEROIDES, VEL_ASTER, VEL_NAVE)
+               FPS, MARGEN_IZQ, MAX_CARACTERES, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, PUNTOS_POR_PLANETA,
+               RUTA_TIPOGRAFIA, TIPOS_DE_ASTEROIDES, VEL_ASTER, VEL_NAVE)
 
 from .entidades import Asteroide, Contador_Niveles, Contador_Vidas, Fondo, Marcador, Nave, Planeta
 from .records import Records
@@ -119,6 +119,7 @@ class Nivel(Escena):
         self.nivel = nivel
         self.subir_nivel = False
         self.flag_fin_de_nivel = False
+        self.asignados_puntos_nivel = False
         self.jugador = Nave()
         self.fondo1 = Fondo()
         self.fondo2 = Fondo()
@@ -354,29 +355,22 @@ class Nivel(Escena):
         self.pantalla.blit(self.planeta.imagen,
                            self.planeta.rect)
 
-    """
-    def resolver_choque(self, asteroide):
-        self.jugador.sonido_explosion.play()
-        self.contador_vidas.restar_vida()
-        self.campo_asteroides.remove(asteroide)
-        if self.campo_asteroides == []:
-            self.flag_fin_de_nivel = True
-        else:
-            for asteroide in self.campo_asteroides:
-                asteroide.turno = asteroide.turno+100
-        self.jugador.explota = True
-        self.jugador.imagen.fill((0, 0, 0))
-    """
-
     def resolver_final_de_nivel(self):
 
         # self.jugador.aterrizar()
         print("self.marcador.total = ", self.marcador.total)
         print("Nivel.puntacion= ", Nivel.puntuacion)
         print("has superado el nivel", self.nivel)
-        self.pintar_mensaje("Has superado el nivel", 60)
+        if self.nivel == 4:
+            self.pintar_mensaje("¡Enhorabuena, has terminado el juego!")
+        else:
+            self.pintar_mensaje(
+                "Has superado el nivel {}".format(self.nivel), 60)
         self.pintar_mensaje_barra()
         self.subir_nivel = True
+        if not self.asignados_puntos_nivel:
+            self.marcador.incrementar(PUNTOS_POR_PLANETA)
+            self.asignados_puntos_nivel = True
         print("esperando evento barra")
 
 

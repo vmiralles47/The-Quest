@@ -3,8 +3,8 @@ from random import randint, randrange
 import pygame as pg
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS,
-               DURACION_TURNO, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER,
-               VEL_FACTOR_INERCIA, VEL_NAVE, VEL_ASTER, VEL_PLANETA)
+               DURACION_TURNO, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, VEL_ASTER,
+               VEL_FACTOR_INERCIA, VEL_MAX_NAVE, VEL_NAVE, VEL_PLANETA)
 
 
 class Nave(pg.sprite.Sprite):
@@ -72,7 +72,8 @@ class Nave(pg.sprite.Sprite):
                 self.sheet_nave, (0, 0), area=frame_area)
             print("subiendo A velocidad", self.velocidad)
             self.rect.y -= self.velocidad
-            self.velocidad += VEL_FACTOR_INERCIA
+            if self.velocidad <= VEL_MAX_NAVE:
+                self.velocidad += VEL_FACTOR_INERCIA
             self.se_mueve = True
 
         if self.rect.y < ALTO_MARCADOR:
@@ -83,9 +84,10 @@ class Nave(pg.sprite.Sprite):
                           100, self.frame_width, self.frame_height)
             self.imagen.blit(
                 self.sheet_nave, (0, 0), area=frame_area)
-            print("bajando velocidad:  ", self.velocidad)
+            print("bajando A velocidad:  ", self.velocidad)
             self.rect.y += self.velocidad
-            self.velocidad += VEL_FACTOR_INERCIA
+            if self.velocidad <= VEL_MAX_NAVE:
+                self.velocidad += VEL_FACTOR_INERCIA
             self.se_mueve = True
             if self.rect.bottom > ALTO:
                 self.rect.bottom = ALTO

@@ -6,7 +6,7 @@ import pygame as pg
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FACTOR_PUNTOS,
                FPS, MARGEN_IZQ, MAX_CARACTERES, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, RUTA_TIPOGRAFIA,
-               TIPOS_DE_ASTEROIDES, VEL_ASTER)
+               TIPOS_DE_ASTEROIDES, VEL_ASTER, VEL_NAVE)
 
 from .entidades import Asteroide, Contador_Niveles, Contador_Vidas, Fondo, Marcador, Nave, Planeta
 from .records import Records
@@ -147,7 +147,7 @@ class Nivel(Escena):
         self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
         salir = False
         preparado_para_rotar = False
-
+        se_ha_movido = False
         ha_aterrizado = False
         x_aterrizaje = ANCHO
         while not salir:
@@ -233,7 +233,9 @@ class Nivel(Escena):
                     self.jugador.imagen.fill((0, 0, 0))
 
                 else:
-                    self.jugador.update()
+                    se_mueve = self.jugador.update()
+                    if not se_mueve:
+                        self.jugador.velocidad = VEL_NAVE
                     if not self.flag_fin_de_nivel:
                         if not self.jugador.sonido_reactor_on:
                             self.jugador.sonido_reactor.play()
@@ -498,8 +500,8 @@ class Pantalla_records(Gestion_records):
 
         # imprime columna nombres:
         for dupla in self.records.lista_records:
-            cadena_nombre = f"{l+1} - {dupla[0]}"
-            cadena_puntos = "{}".format(str(dupla[1]))
+            cadena_nombre = "{:>3} - {:>} ".format(l+1, dupla[0])
+            cadena_puntos = "{:>}".format(str(dupla[1]))
             texto_nombre = tipo.render(cadena_nombre, True, COLOR_OBJETOS)
             texto_puntos = tipo.render(cadena_puntos, True, COLOR_OBJETOS)
             nombre_x = ((3*ANCHO)/8)

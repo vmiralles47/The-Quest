@@ -4,7 +4,7 @@ import pygame as pg
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS,
                DURACION_TURNO, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER,
-               VEL_NAVE, VEL_ASTER, VEL_PLANETA)
+               VEL_FACTOR_INERCIA, VEL_NAVE, VEL_ASTER, VEL_PLANETA)
 
 
 class Nave(pg.sprite.Sprite):
@@ -41,7 +41,8 @@ class Nave(pg.sprite.Sprite):
         self.explota = False
         self.contador_angulo = 1
         self.angulo_rotado = 0
-
+        self.velocidad = VEL_NAVE
+        self.se_mueve = False  # testigo booleano apra la velocidad inercial
         ruta_sound = os.path.join("resources", "sounds", "fireball.mp3")
         self.sonido_explosion = pg.mixer.Sound(ruta_sound)
         ruta_sonidoreactor = os.path.join(
@@ -50,6 +51,7 @@ class Nave(pg.sprite.Sprite):
         self.sonido_reactor_on = False
 
     def update(self):
+
         if self.current_frame > self.frames - 1:
             self.current_frame = 0
         else:
@@ -60,23 +62,34 @@ class Nave(pg.sprite.Sprite):
         self.imagen.blit(
             self.sheet_nave, (0, 0), area=frame_area)
 
+        self.se_mueve = False
         pulsadas = pg.key.get_pressed()
+
         if pulsadas[pg.K_UP]:
             frame_area = (self.current_frame*self.frame_width,
                           200, self.frame_width, self.frame_height)
             self.imagen.blit(
                 self.sheet_nave, (0, 0), area=frame_area)
-            self.rect.y -= VEL_NAVE
+            print("subiendo A velocidad", self.velocidad)
+            self.rect.y -= self.velocidad
+            self.velocidad += VEL_FACTOR_INERCIA
+            self.se_mueve = True
+
         if self.rect.y < ALTO_MARCADOR:
             self.rect.y = ALTO_MARCADOR
+
         if pulsadas[pg.K_DOWN]:
             frame_area = (self.current_frame*self.frame_width,
                           100, self.frame_width, self.frame_height)
             self.imagen.blit(
                 self.sheet_nave, (0, 0), area=frame_area)
-            self.rect.y += VEL_NAVE
+            print("bajando velocidad:  ", self.velocidad)
+            self.rect.y += self.velocidad
+            self.velocidad += VEL_FACTOR_INERCIA
+            self.se_mueve = True
             if self.rect.bottom > ALTO:
                 self.rect.bottom = ALTO
+        return self.se_mueve
 
     def update_explosion(self):
         if self.contador_explosion == 30:

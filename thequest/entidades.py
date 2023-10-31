@@ -154,7 +154,7 @@ class Nave(pg.sprite.Sprite):
 
 class Asteroide(pg.sprite.Sprite):
 
-    def __init__(self, tipo, altura):
+    def __init__(self, altura, tipo, turno):
         # tipo = 1, 2 o 3
         super().__init__()
         self.tipo = tipo
@@ -171,12 +171,13 @@ class Asteroide(pg.sprite.Sprite):
         self.imagen = self.imagenes[self.contador]
         self.rect = self.imagen.get_rect(center=(ORIGEN_ASTER, altura))
         self.velocidad = VEL_ASTER[tipo-1]
-        self.turno = randrange(0, DURACION_TURNO)
+        self.turno = turno
         # TODO: que los turnos estén mejor espaciados, no pueden coincidir, igual que las alturas
 
         print("asteroide tipo ", self.tipo,
               "turno = ", self.turno,
               "velocidad ", self.velocidad,
+              "altura", altura
               )
 
     def update(self, nivel):

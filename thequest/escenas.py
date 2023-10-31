@@ -4,9 +4,9 @@ from random import randint, randrange
 import pygame as pg
 
 
-from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, FACTOR_PUNTOS,
-               FPS, MARGEN_IZQ, MAX_CARACTERES, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, PUNTOS_POR_PLANETA,
-               RUTA_TIPOGRAFIA, TIPOS_DE_ASTEROIDES, VEL_ASTER, VEL_NAVE)
+from . import (ANCHO, ALTO, ALTO_MARCADOR, ASTEROIDES_POR_NIVEL, COLOR_OBJETOS, DURACION_TURNO,
+               FACTOR_PUNTOS, FPS, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER,
+               PUNTOS_POR_PLANETA, RUTA_TIPOGRAFIA, TIPOS_DE_ASTEROIDES, VEL_NAVE)
 
 from .entidades import Asteroide, Contador_Niveles, Contador_Vidas, Fondo, Marcador, Nave, Planeta
 from .records import Records
@@ -148,7 +148,6 @@ class Nivel(Escena):
         self.campo_asteroides = self.crear_campo_asteroides(self.nivel)
         salir = False
         preparado_para_rotar = False
-        se_ha_movido = False
         ha_aterrizado = False
         x_aterrizaje = ANCHO
         while not salir:
@@ -258,14 +257,20 @@ class Nivel(Escena):
     def crear_campo_asteroides(self, nivel):
         campo_aster = []
         lista_alturas = []
+        lista_turnos = []
         # nivel 1 10 asteroides tipo 1, 10 asteroides tipo 2, 10 asteorides tipo 3
         for i in range(0, ASTEROIDES_POR_NIVEL[nivel-1]):
             for r in range(0, TIPOS_DE_ASTEROIDES):
                 altura = Nivel.generar_altura(lista_alturas)
-                asteroide = Asteroide(r+1, altura)
+                turno = Nivel.generar_turno(lista_turnos)
+
+                asteroide = Asteroide(altura, r+1, turno)
                 campo_aster.append(asteroide)
+
         print("Creados ", len(campo_aster), " asteroides")
-        return campo_aster
+        print("lista alturas:", lista_alturas)
+        print("lista turnos : ", lista_turnos)
+        return campo_aster  # devuelve una lista de asteroides instancias de entidad Asteroide
 
     def final_de_partida(self):
 
@@ -284,15 +289,30 @@ class Nivel(Escena):
         # genera una pos x aleatoria entre 0 y ALTO_MARCADOR, tomada de 50 en 50 y que no puede repetirse
 
         altura = randrange((ALTO_MARCADOR+45),
-                           ALTO)
+                           ALTO, 25)
         exit = False
         while exit == False:
             if altura in lista:
-                altura = randint(0, ALTO)
+                altura = randrange((ALTO_MARCADOR+45),
+                                   ALTO)
             else:
                 lista.append(altura)
                 exit = True
+        print(lista)
         return altura
+
+    def generar_turno(lista_turnos):
+        turno = randrange(0, DURACION_TURNO, 25)
+
+        exit = False
+        while exit == False:
+            if turno in lista_turnos:
+                turno = randrange(0, DURACION_TURNO)
+            else:
+                lista_turnos.append(turno)
+                exit = True
+        print("turnos ", lista_turnos)
+        return turno
 
     def pintar_contador_niveles(self):
         texto_nivel = f"NIVEL {str(self.nivel)}"
@@ -462,13 +482,18 @@ class Pantalla_records(Gestion_records):
         self.records.actualizar()
         self.musica.play()
         salir = False
+        a_portada = True
+        pg.time.set_timer(pg.KEYUP, 10000)
+        # pg.time.set_timer(pg.K_s, 3000)
         while not salir:
             # 1 capturar los eventos
+
             for evento in pg.event.get():
+
                 if evento.type == pg.QUIT:
                     # ():
                     return True
-                if evento.type == pg.KEYDOWN and evento.key == pg.K_s:
+                if evento.type == pg.KEYUP or (evento.type == pg.KEYDOWN and evento.key == pg.K_s):
                     self.musica.stop()
                     salir = True
                 elif evento.type == pg.KEYDOWN and evento.key == pg.K_n:

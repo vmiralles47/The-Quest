@@ -450,7 +450,7 @@ class Pantalla_puntos(Gestion_records):
                     salir = True
             else:
                 self.pintar_mensaje(
-                    "esta vez no has estado entre los 10 mejores.\nVuelve a intentarlo!!", 45)
+                    "esta vez no has estado entre los 5 mejores.\nVuelve a intentarlo!!", 45)
                 self.pintar_mensaje_barra()
                 for evento in pg.event.get():
                     if evento.type == pg.QUIT:

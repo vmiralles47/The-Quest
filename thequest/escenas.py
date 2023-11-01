@@ -29,8 +29,8 @@ class Escena:
             return True
 
     def pintar_mensaje(self, cadena, tamanio, altura_opc=0):
-        ruta = os.path.join("resources", "fonts", "Square.ttf")
-        tipo = pg.font.Font(ruta, tamanio)
+
+        tipo = pg.font.Font(RUTA_TIPOGRAFIA, tamanio)
         mensaje = cadena
         lineas = mensaje.splitlines()
         altura_tipo = tipo.get_height()
@@ -47,8 +47,8 @@ class Escena:
             self.pantalla.blit(texto_imagen, (x, y))
 
     def pintar_mensaje_barra(self):
-        ruta = os.path.join("resources", "fonts", "Square.ttf")
-        tipo = pg.font.Font(ruta, 15)
+
+        tipo = pg.font.Font(RUTA_TIPOGRAFIA, 15)
         mensaje = "Pulsa ESPACIO para continuar"
         texto_imagen = tipo.render(mensaje, True, COLOR_OBJETOS, (0, 0, 0))
         x = (ANCHO-texto_imagen.get_width())/2
@@ -57,8 +57,8 @@ class Escena:
 
     def pintar_logo(self):
         # de momenot escribe el nombre del juego con una fuente chula
-        ruta = os.path.join("resources", "fonts", "spaceranger.ttf")
-        tipo = pg.font.Font(ruta, 100)
+
+        tipo = pg.font.Font(RUTA_TIPOGRAFIA, 100)
         mensaje = "THE QUEST"
         texto_imagen = tipo.render(mensaje, True, COLOR_OBJETOS)
         x = (ANCHO - texto_imagen.get_width())/2
@@ -187,11 +187,6 @@ class Nivel(Escena):
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
                     self.resolver_final_de_nivel()
-                    """
-                    for evento in pg.event.get():
-                        if evento.type == pg.KEYDOWN and evento.key == pg.K_SPACE:
-                            salir = True
-                    """
                     espera_barra = True
                     if salir:
                         if self.nivel == 4:
@@ -412,8 +407,7 @@ class Pantalla_puntos(Gestion_records):
     def __init__(self, pantalla):
         super().__init__(pantalla)
         alto_tipo_nombre = 80
-        ruta = os.path.join("resources", "fonts", "Square.ttf")
-        self.tipo = pg.font.Font(ruta, alto_tipo_nombre)
+        self.tipo = pg.font.Font(RUTA_TIPOGRAFIA, alto_tipo_nombre)
         # me hace falta un fondo negro sobre el que escribir para que funcione bien el borrado de letras
         self.nombre = ""  # un caracter ancho cualquiera
         self.pide_nombre = True
@@ -443,7 +437,7 @@ class Pantalla_puntos(Gestion_records):
                     self.nombre = self.pedir_nombre()
                     print(self.nombre, len(self.nombre))
                 else:
-                    nombre = self.nombre[:-1]
+                    nombre = self.nombre  # [:-1]
                     self.records.insertar_record(nombre, puntuacion)
                     salir = True
             else:
@@ -480,8 +474,8 @@ class Pantalla_records(Gestion_records):
         super().__init__(pantalla)
         ruta_musica = os.path.join("resources", "sounds", "musica_records.mp3")
         self.musica = pg.mixer.Sound(ruta_musica)
-        self.ruta = os.path.join("resources", "fonts", "Square.ttf")
-        self.tipo = pg.font.Font(self.ruta, 30)
+
+        self.tipo = pg.font.Font(RUTA_TIPOGRAFIA, 30)
         self.x_nombres, self.x_puntos = self.calcular_coord_tablarecords()
 
     def bucle_principal(self):

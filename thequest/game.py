@@ -21,7 +21,7 @@ class TheQuest:
     def jugar(self):
         cerrar_juego = False
         while not cerrar_juego:
-            # cerrar_juego = self.pantalla_records.bucle_principal()
+            cerrar_juego = self.pantalla_records.bucle_principal()
             # cerrar_juego = self.pantalla_puntos.bucle_principal(8000000)
             # cerrar_juego = self.pantalla_records.bucle_principal()
             cerrar_juego = self.portada.bucle_principal()

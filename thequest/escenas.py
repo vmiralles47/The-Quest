@@ -480,6 +480,9 @@ class Pantalla_records(Gestion_records):
         super().__init__(pantalla)
         ruta_musica = os.path.join("resources", "sounds", "musica_records.mp3")
         self.musica = pg.mixer.Sound(ruta_musica)
+        self.ruta = os.path.join("resources", "fonts", "Square.ttf")
+        self.tipo = pg.font.Font(self.ruta, 30)
+        self.x_nombres, self.x_puntos = self.calcular_coord_tablarecords()
 
     def bucle_principal(self):
         super().bucle_principal()
@@ -517,21 +520,35 @@ class Pantalla_records(Gestion_records):
             pg.display.flip()
         return False
 
-    def pintar_records(self):
-        ruta = os.path.join("resources", "fonts", "Square.ttf")
-        tipo = pg.font.Font(ruta, 30)
-        l = 0
+    def calcular_coord_tablarecords(self):
+        puntos_max = "9999999"
+        imagen_puntos_max = self.tipo.render(puntos_max, True, (0, 0, 0))
+        rect_maximo_puntos = imagen_puntos_max.get_rect()
+        longitud_puntos = rect_maximo_puntos.width
+        nombre_max = "AAAAAAAAAA"
+        imagen_nombre_max = self.tipo.render(nombre_max, True, (0, 0, 0))
+        rect_nombre_max = imagen_nombre_max.get_rect()
+        longitud_nombre = rect_nombre_max.width
+        ancho_area_impresion = longitud_nombre + \
+            (longitud_puntos + longitud_nombre/5)
+        x_nombres = (ANCHO-ancho_area_impresion)/2
+        x_puntos = x_nombres+ancho_area_impresion
+        return x_nombres, x_puntos
 
+    def pintar_records(self):
+        linea = 0
         # imprime columna nombres:
         for dupla in self.records.lista_records:
-            cadena_nombre = "{:>3} - {:>} ".format(l+1, dupla[0])
-            cadena_puntos = "{:>}".format(str(dupla[1]))
-            texto_nombre = tipo.render(cadena_nombre, True, COLOR_OBJETOS)
-            texto_puntos = tipo.render(cadena_puntos, True, COLOR_OBJETOS)
-            nombre_x = ((3*ANCHO)/8)
-            nombre_y = ((3*ALTO)/8) + (l*40)
-            puntos_x = ((4*ANCHO)/7)
-            puntos_y = ((3*ALTO)/8) + (l*40)
-            l += 1
-            self.pantalla.blit(texto_nombre, (nombre_x, nombre_y))
-            self.pantalla.blit(texto_puntos, (puntos_x, puntos_y))
+            cadena_nombre = "{:<} ".format(dupla[0])
+            cadena_puntos = "{: >7}".format(str(dupla[1]))
+            texto_nombre = self.tipo.render(cadena_nombre, True, COLOR_OBJETOS)
+            texto_puntos = self.tipo.render(cadena_puntos, True, COLOR_OBJETOS)
+            rect_puntos = texto_puntos.get_rect()
+            # nombre_x = ((3*ANCHO)/8)
+            nombre_y = ((3*ALTO)/8) + (linea*40)
+            rect_puntos.right = self.x_puntos
+            rect_puntos.y = ((3*ALTO)/8) + (linea*40)
+            linea += 1
+
+            self.pantalla.blit(texto_nombre, (self.x_nombres, nombre_y))
+            self.pantalla.blit(texto_puntos, rect_puntos)

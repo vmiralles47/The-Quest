@@ -8,7 +8,7 @@ class TheQuest:
     def __init__(self):
         pg.init()
 
-        self.pantalla = pg.display.set_mode((ANCHO, ALTO))
+        self.pantalla = pg.display.set_mode((1500, ALTO))
         pg.mixer.init()
         # importar las escenas necesarias para jugar: INICIO Y JUEGO (records puede ser llamada tanto desde Inicio como Juego)
         # pasarles como argumento self.pantalla y self.records

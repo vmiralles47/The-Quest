@@ -214,7 +214,7 @@ class Nivel(Escena):
                             self.resolver_choque()
                             if not self.flag_fin_de_nivel:
                                 for asteroide in self.campo_asteroides:
-                                    asteroide.rect.x += ORIGEN_ASTER * asteroide.tipo
+                                    asteroide.rect.x += ANCHO
 
                         if self.campo_asteroides == [] and self.contador_vidas.consultar() > 0:
                             print("lista asteroides vacía")
@@ -500,7 +500,7 @@ class Pantalla_records(Gestion_records):
         self.musica.play()
         salir = False
         a_portada = True
-        pg.time.set_timer(pg.K_0, 60000)
+        pg.time.set_timer(pg.K_0, 10000)
         # pg.time.set_timer(pg.K_s, 3000)
         while not salir:
             # 1 capturar los eventos

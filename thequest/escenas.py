@@ -411,11 +411,15 @@ class Pantalla_puntos(Gestion_records):
         # me hace falta un fondo negro sobre el que escribir para que funcione bien el borrado de letras
         self.nombre = ""  # un caracter ancho cualquiera
         self.pide_nombre = True
+        ruta_musica = os.path.join(
+            "resources", "sounds", "musica_puntos.mp3")
+        self.musica = pg.mixer.Sound(ruta_musica)
 
     def bucle_principal(self, puntuacion):
         super().bucle_principal()
         print("bucle principal de Pantalla_Puntos")
         es_record = self.records.es_record(puntuacion)
+        self.musica.play()
         salir = False
         while not salir:
             # 1 capturar los eventos
@@ -426,12 +430,12 @@ class Pantalla_puntos(Gestion_records):
             self.pintar_logo()
             if es_record:
                 self.pintar_mensaje(
-                    "has hecho nuevo record.\nintroduce tu nombre\ny pulsa INTRO", 45)
+                    "¡Enhorabuena! Nuevo record.\nIntroduce tu nombre\n(max 10 caracteres)\ny pulsa INTRO", 45)
                 if self.pide_nombre:
                     imagen_nombre = self.tipo.render(
                         self.nombre, True, COLOR_OBJETOS, (0, 0, 0))
                     self.rect_fondo = imagen_nombre.get_rect(
-                        center=(ANCHO/2, 5*(ALTO/8) + 120))
+                        center=(ANCHO/2, 5*(ALTO/8) + 165))
                     self.pantalla.blit(
                         imagen_nombre, self.rect_fondo)
                     self.nombre = self.pedir_nombre()
@@ -439,6 +443,7 @@ class Pantalla_puntos(Gestion_records):
                 else:
                     nombre = self.nombre  # [:-1]
                     self.records.insertar_record(nombre, puntuacion)
+                    self.musica.stop()
                     salir = True
             else:
                 self.pintar_mensaje(
@@ -448,6 +453,7 @@ class Pantalla_puntos(Gestion_records):
                     if evento.type == pg.QUIT:
                         return True
                     if self.barra_pulsada(evento):
+                        self.musica.stop()
                         salir = True
             # salir = self.empezar_partida()
             # 3. Mostrar los cambios (pintados) y controlar el reloj

@@ -199,7 +199,8 @@ class Nivel(Escena):
             else:
                 for asteroide in self.campo_asteroides:
                     sale = asteroide.update(self.nivel)
-                    choca = pg.sprite.collide_rect(asteroide, self.jugador)
+                    choca = pg.sprite.collide_rect(
+                        asteroide, self.jugador)
                     if sale or choca:
                         self.campo_asteroides.remove(asteroide)
 
@@ -225,8 +226,10 @@ class Nivel(Escena):
 
                 if self.jugador.explota:
                     self.jugador.explota = self.jugador.update_explosion()
-                    self.pintar_nave()
-                    self.jugador.imagen.fill((0, 0, 0))
+                    self.jugador.rect_aux.center = self.jugador.rect.center
+                    self.pantalla.blit(self.jugador.imagen_aux,
+                                       self.jugador.rect_aux)
+                    self.jugador.imagen_aux.fill((0, 0, 0))
 
                 else:
                     se_mueve = self.jugador.update()
@@ -343,7 +346,7 @@ class Nivel(Escena):
         self.pantalla.blit(texto, (pos_x, pos_y))
 
     def pintar_nave(self):
-        self.pantalla.blit(self.jugador.imagen,
+        self.pantalla.blit(self.jugador.imagen_nave,
                            self.jugador.rect)
 
     def pintar_nave_rotando(self):
@@ -362,7 +365,7 @@ class Nivel(Escena):
         self.jugador.sonido_reactor_on = False
 
         self.jugador.explota = True
-        self.jugador.imagen.fill((0, 0, 0))
+        self.jugador.imagen_nave.fill((0, 0, 0))
         self.contador_vidas.restar_vida()
 
     def resolver_final_de_nivel(self):

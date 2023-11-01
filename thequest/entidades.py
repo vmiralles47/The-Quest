@@ -15,24 +15,32 @@ class Nave(pg.sprite.Sprite):
         ruta = os.path.join("resources", "images", "spritesheet_starship.png")
         # surface origen de la que coger los frames
         self.sheet_nave = pg.image.load(ruta)
-        # la spritesheet tiene 3 filas de 16 frames cada una, de 100x100 pts.
+        # la spritesheet tiene 3 filas de 16 frames cada una, de 100x100 pts.imagen válida 70 pts de alto
         self.current_frame = 0
         self.frames = 16
         self.frame_width = 100
-        self.frame_height = 100
-        self.frame_area = (0, 0, self.frame_width, self.frame_height)
+
         # mi surface a mostrar:
-        self.imagen = pg.Surface((self.frame_width, self.frame_height))
-        self.imagen_aux = pg.Surface((self.frame_width, self.frame_height))
-        self.imagen_aux2 = pg.Surface((self.frame_width, self.frame_height))
-        alto_inicial = ((ALTO-ALTO_MARCADOR)/2)+(self.frame_height/2)
-        self.imagen.blit(self.sheet_nave, (0, 0),
-                         area=self.frame_area)
-        self.rect = self.imagen.get_rect(
+        self.nave_frame_height = 70
+        self.imagen_nave = pg.Surface(
+            (self.frame_width, self.nave_frame_height))
+        self.nave_frame_area = (0, 15, self.frame_width,
+                                self.nave_frame_height)
+        self.imagen_nave.blit(self.sheet_nave, (0, 0),
+                              area=self.nave_frame_area)
+        # surface auxiliar 100 x 100 para la explosion y la rotacion:
+        self.aux_frame_height = 100
+        self.imagen_aux = pg.Surface((self.frame_width, self.aux_frame_height))
+        self.aux_frame_area = (0, 15, self.frame_width, self.aux_frame_height)
+
+        alto_inicial = ((ALTO-ALTO_MARCADOR)/2)+(self.nave_frame_height/2)
+
+        self.rect = self.imagen_nave.get_rect(
             midleft=(MARGEN_IZQ, alto_inicial))
-        self.rect_aux = self.imagen.get_rect(
+        self.rect_aux = self.imagen_aux.get_rect(
             midleft=(MARGEN_IZQ, alto_inicial))
-        self.imagen.set_colorkey((0, 0, 0))
+        self.imagen_nave.set_colorkey((0, 0, 0))
+        self.imagen_aux.set_colorkey((0, 0, 0))
         # spritesheet de la explosion, una fila de 21 elementos de 105x105 cada uno
         ruta_explosion = os.path.join(
             "resources", "images", "explosion_spritesheet_105x105_15fr.png")
@@ -58,8 +66,8 @@ class Nave(pg.sprite.Sprite):
             self.current_frame += 1
 
         frame_area = (self.current_frame*self.frame_width,
-                      0, self.frame_width, self.frame_height)
-        self.imagen.blit(
+                      15, self.frame_width, self.nave_frame_height)
+        self.imagen_nave.blit(
             self.sheet_nave, (0, 0), area=frame_area)
 
         self.se_mueve = False
@@ -67,8 +75,8 @@ class Nave(pg.sprite.Sprite):
 
         if pulsadas[pg.K_UP]:
             frame_area = (self.current_frame*self.frame_width,
-                          200, self.frame_width, self.frame_height)
-            self.imagen.blit(
+                          215, self.frame_width, self.nave_frame_height)
+            self.imagen_nave.blit(
                 self.sheet_nave, (0, 0), area=frame_area)
             print("subiendo A velocidad", self.velocidad)
             self.rect.y -= self.velocidad
@@ -81,8 +89,8 @@ class Nave(pg.sprite.Sprite):
 
         if pulsadas[pg.K_DOWN]:
             frame_area = (self.current_frame*self.frame_width,
-                          100, self.frame_width, self.frame_height)
-            self.imagen.blit(
+                          115, self.frame_width, self.nave_frame_height)
+            self.imagen_nave.blit(
                 self.sheet_nave, (0, 0), area=frame_area)
             print("bajando A velocidad:  ", self.velocidad)
             self.rect.y += self.velocidad
@@ -94,13 +102,13 @@ class Nave(pg.sprite.Sprite):
         return self.se_mueve
 
     def update_explosion(self):
-        if self.contador_explosion == 30:
+        if self.contador_explosion == 21:
             self.contador_explosion = 0
             return False
         else:
             self.contador_explosion += 1
-            frame_area = (self.contador_explosion*105, 0, 105, 105)
-            self.imagen.blit(self.sheet_explosion, (0, 0), frame_area)
+            frame_area = (self.contador_explosion*105, 15, 105, 105)
+            self.imagen_aux.blit(self.sheet_explosion, (0, 0), frame_area)
             return True
 
     def update_rotacion(self, lugar_aterrizaje):
@@ -109,18 +117,17 @@ class Nave(pg.sprite.Sprite):
         if self.angulo_rotado < 180:
 
             self.imagen_aux = pg.transform.rotate(
-                self.imagen, angulo_rotacion*self.contador_angulo
+                self.imagen_nave, angulo_rotacion*self.contador_angulo
             )
-            self.rect_aux = self.imagen_aux.get_rect(center=(self.rect.center))
+            self.rect_aux = self.imagen_aux.get_rect(
+                center=(self.rect.center))
             self.angulo_rotado += angulo_rotacion
             self.contador_angulo += 1
-
-            print("centro rect nvae", self.rect.center)
-            print("cenrto rect aux", self.rect_aux.center)
-            print("ROTACION:", self.angulo_rotado)
             return False
+
         elif self.rect_aux.centerx < ANCHO - ((ANCHO - lugar_aterrizaje)/2):
             self.rect_aux.centerx += VEL_NAVE
+
         else:
             return True
 
@@ -132,8 +139,8 @@ class Nave(pg.sprite.Sprite):
             self.current_frame += 1
 
         frame_area = (self.current_frame*self.frame_width,
-                      0, self.frame_width, self.frame_height)
-        self.imagen.blit(
+                      15, self.frame_width, self.nave_frame_height)
+        self.imagen_nave.blit(
             self.sheet_nave, (0, 0), area=frame_area)
 
         distancia_centro_y = (ALTO/2 - self.rect.centery)
@@ -147,7 +154,7 @@ class Nave(pg.sprite.Sprite):
             vel_y = 0
             vel_x = 0
             print("estoy en el centro")
-            return True  # ya está en el centro. Lisyo esté listo para rotar
+            return True  # ya está en el centro, lista para rotar
         else:
             return False
 

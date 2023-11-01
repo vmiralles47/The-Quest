@@ -112,6 +112,7 @@ class Nave(pg.sprite.Sprite):
             return True
 
     def update_rotacion(self, lugar_aterrizaje):
+        print("self.angulo_rotado: ", self.angulo_rotado)
         angulo_rotacion = 9
 
         if self.angulo_rotado < 180:
@@ -127,6 +128,7 @@ class Nave(pg.sprite.Sprite):
 
         elif self.rect_aux.centerx < ANCHO - ((ANCHO - lugar_aterrizaje)/2):
             self.rect_aux.centerx += VEL_NAVE
+            return False
 
         else:
             return True
@@ -149,8 +151,8 @@ class Nave(pg.sprite.Sprite):
         vel_x = int(distancia_centro_x / 10)
         self.rect.x += vel_x
         self.rect.y += vel_y
-
-        if int(self.rect.y+50) in range(int((ALTO/2)-10), int((ALTO/2)+10)):
+        print("self.rect.centery", self.rect.centery, (ALTO/2)-10, (ALTO/2 + 10))
+        if int(self.rect.centery) in range(int((ALTO/2)-10), int((ALTO/2)+10)):
             vel_y = 0
             vel_x = 0
             print("estoy en el centro")

@@ -162,7 +162,7 @@ class Nivel(Escena):
                         salir = True
             # self.pantalla.fill((66, 66, 66))
             self.pintar_fondo()
-
+            print(self.flag_fin_de_nivel, preparado_para_rotar, ha_aterrizado)
             if self.contador_vidas.consultar() == 0:
                 self.resolver_final_de_partida()
                 espera_barra = True
@@ -182,7 +182,9 @@ class Nivel(Escena):
                     # en el planeta del nivel extra pasa algo especial
                     if self.nivel == 4:
                         self.planeta.play_music_nivel4()
+
                 elif not ha_aterrizado:
+
                     ha_aterrizado = self.jugador.update_rotacion(x_aterrizaje)
                     self.pintar_planeta()
                     self.pintar_nave_rotando()
@@ -217,6 +219,7 @@ class Nivel(Escena):
                         if self.campo_asteroides == [] and self.contador_vidas.consultar() > 0:
                             print("lista asteroides vacía")
                             self.flag_fin_de_nivel = True
+
                             if self.nivel != 4:
                                 self.musica_findenivel.play()
                             self.jugador.sonido_reactor.stop()

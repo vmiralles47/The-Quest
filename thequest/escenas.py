@@ -409,17 +409,19 @@ class Pantalla_puntos(Gestion_records):
         alto_tipo_nombre = 80
         self.tipo = pg.font.Font(RUTA_TIPOGRAFIA, alto_tipo_nombre)
         # me hace falta un fondo negro sobre el que escribir para que funcione bien el borrado de letras
-        self.nombre = ""  # un caracter ancho cualquiera
+        self.nombre = ""
         self.pide_nombre = True
         ruta_musica = os.path.join(
             "resources", "sounds", "musica_puntos.mp3")
         self.musica = pg.mixer.Sound(ruta_musica)
 
     def bucle_principal(self, puntuacion):
+
         super().bucle_principal()
         print("bucle principal de Pantalla_Puntos")
         es_record = self.records.es_record(puntuacion)
         self.musica.play()
+        print(self.nombre, len(self.nombre))
         salir = False
         while not salir:
             # 1 capturar los eventos
@@ -438,10 +440,14 @@ class Pantalla_puntos(Gestion_records):
                         center=(ANCHO/2, 5*(ALTO/8) + 165))
                     self.pantalla.blit(
                         imagen_nombre, self.rect_fondo)
+
                     self.nombre = self.pedir_nombre()
-                    print(self.nombre, len(self.nombre))
+
                 else:
-                    nombre = self.nombre  # [:-1]
+                    if self.nombre == "":
+                        nombre = "SIN NOMBRE"
+                    else:
+                        nombre = self.nombre
                     self.records.insertar_record(nombre, puntuacion)
                     self.musica.stop()
                     salir = True
@@ -464,12 +470,12 @@ class Pantalla_puntos(Gestion_records):
         for evento in pg.event.get():
             if evento.type == pg.KEYDOWN:
                 if evento.key == pg.K_RETURN:
-
                     self.pide_nombre = False
-                if evento.key == pg.K_BACKSPACE:
+                elif evento.key == pg.K_BACKSPACE:
                     self.nombre = self.nombre[:-1]
                 else:
                     self.nombre += evento.unicode
+
                     if len(self.nombre) > 10:
                         self.nombre = self.nombre[:10]
         return self.nombre
@@ -497,7 +503,6 @@ class Pantalla_records(Gestion_records):
             # 1 capturar los eventos
 
             for evento in pg.event.get():
-
                 if evento.type == pg.QUIT:
                     # ():
                     return True

@@ -1,5 +1,5 @@
 import os
-from random import randint, randrange
+from random import randrange
 
 import pygame as pg
 
@@ -106,8 +106,6 @@ class Portada(Escena):
 
 
 # pantalla donde se desarrolla cada nivel del juego. recibe como parámetro en qué nivel está para ajustar la dificultad
-
-
 class Nivel(Escena):
     # atributo de clase, para que lo usen los distintos niveles
     puntuacion = 0
@@ -128,6 +126,9 @@ class Nivel(Escena):
         ruta_musica = os.path.join(
             "resources", "sounds", "musica_findenivel.mp3")
         self.musica_findenivel = pg.mixer.Sound(ruta_musica)
+        ruta_musica = os.path.join(
+            "resources", "sounds", "musica_nonaves.mp3")
+        self.musica_nonaves = pg.mixer.Sound(ruta_musica)
 
         # self.asteroide = Asteroide(ANCHO, ALTO/2, 20, 2)
         self.pantalla = pantalla
@@ -163,8 +164,10 @@ class Nivel(Escena):
             self.pintar_fondo()
 
             if self.contador_vidas.consultar() == 0:
-                self.final_de_partida()
+                self.resolver_final_de_partida()
                 espera_barra = True
+                if salir:
+                    self.musica_nonaves.stop()
 
             elif self.flag_fin_de_nivel:  # se acaba el nivel
                 if not preparado_para_rotar:
@@ -205,17 +208,10 @@ class Nivel(Escena):
                                 asteroide.tipo*FACTOR_PUNTOS*self.nivel)
 
                         if choca:
-                            # self.resolver_choque(asteroide)
-
-                            self.jugador.sonido_explosion.play()
-                            self.jugador.sonido_reactor.stop()
-                            self.jugador.sonido_reactor_on = False
-                            self.contador_vidas.restar_vida()
+                            self.resolver_choque()
                             if not self.flag_fin_de_nivel:
                                 for asteroide in self.campo_asteroides:
-                                    asteroide.rect.x += ORIGEN_ASTER
-                            self.jugador.explota = True
-                            self.jugador.imagen.fill((0, 0, 0))
+                                    asteroide.rect.x += ORIGEN_ASTER * asteroide.tipo
 
                         if self.campo_asteroides == [] and self.contador_vidas.consultar() > 0:
                             print("lista asteroides vacía")
@@ -271,18 +267,6 @@ class Nivel(Escena):
         print("lista alturas:", lista_alturas)
         print("lista turnos : ", lista_turnos)
         return campo_aster  # devuelve una lista de asteroides instancias de entidad Asteroide
-
-    def final_de_partida(self):
-
-        print("te has quedado sin vidas")
-
-        self.pintar_mensaje("no te quedan naves", 60)
-        self.pintar_mensaje_barra()
-        print("esperando evento barra")
-
-        return False
-        # comprobar record
-        # si es record pedir datos y guardar en base de datos
 
     def generar_altura(lista):
         # es un método de Clase, por probar.
@@ -351,8 +335,6 @@ class Nivel(Escena):
             if self.fondo2.rect.right <= 0:
                 self.fondo2.rect.left = ANCHO+1
 
-    # def pintar_frame_explosion(self):
-
     def pintar_marcador(self):
         vidas = str(self.marcador.consultar())
         texto = self.tipo.render(vidas, True, COLOR_OBJETOS)
@@ -361,7 +343,6 @@ class Nivel(Escena):
         self.pantalla.blit(texto, (pos_x, pos_y))
 
     def pintar_nave(self):
-
         self.pantalla.blit(self.jugador.imagen,
                            self.jugador.rect)
 
@@ -374,6 +355,15 @@ class Nivel(Escena):
     def pintar_planeta(self):
         self.pantalla.blit(self.planeta.imagen,
                            self.planeta.rect)
+
+    def resolver_choque(self):
+        self.jugador.sonido_explosion.play()
+        self.jugador.sonido_reactor.stop()
+        self.jugador.sonido_reactor_on = False
+
+        self.jugador.explota = True
+        self.jugador.imagen.fill((0, 0, 0))
+        self.contador_vidas.restar_vida()
 
     def resolver_final_de_nivel(self):
 
@@ -392,6 +382,12 @@ class Nivel(Escena):
             self.marcador.incrementar(PUNTOS_POR_PLANETA)
             self.asignados_puntos_nivel = True
         print("esperando evento barra")
+
+    def resolver_final_de_partida(self):
+        self.musica_nonaves.play()
+        self.pintar_mensaje("no te quedan naves", 60)
+        self.pintar_mensaje_barra()
+        return False
 
 
 class Gestion_records (Escena):
@@ -416,9 +412,10 @@ class Pantalla_puntos(Gestion_records):
         self.musica = pg.mixer.Sound(ruta_musica)
 
     def bucle_principal(self, puntuacion):
-
         super().bucle_principal()
         print("bucle principal de Pantalla_Puntos")
+        self.nombre = ""
+        self.pide_nombre = True
         es_record = self.records.es_record(puntuacion)
         self.musica.play()
         print(self.nombre, len(self.nombre))

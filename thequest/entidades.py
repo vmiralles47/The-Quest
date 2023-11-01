@@ -148,10 +148,13 @@ class Nave(pg.sprite.Sprite):
         distancia_centro_y = (ALTO/2 - self.rect.centery)
         distancia_centro_x = (ANCHO/2 - self.rect.centerx)
         vel_y = int(distancia_centro_y / 10)
+
         vel_x = int(distancia_centro_x / 10)
+        print("velx : ", vel_x, "vely: ", vel_y)
         self.rect.x += vel_x
         self.rect.y += vel_y
-        print("self.rect.centery", self.rect.centery, (ALTO/2)-10, (ALTO/2 + 10))
+        print("self.rect.centery", self.rect.centery,
+              int(ALTO/2)-10, int(ALTO/2 + 10))
         if int(self.rect.centery) in range(int((ALTO/2)-10), int((ALTO/2)+10)):
             vel_y = 0
             vel_x = 0

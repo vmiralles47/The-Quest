@@ -2,9 +2,9 @@ import os
 from random import randint, randrange
 import pygame as pg
 
-from . import (ANCHO, ALTO, ALTO_MARCADOR, COLOR_OBJETOS,
-               DURACION_TURNO, MARGEN_IZQ, MAX_NIVELES, NUM_VIDAS, ORIGEN_ASTER, VEL_ASTER,
-               VEL_FACTOR_INERCIA, VEL_MAX_NAVE, VEL_NAVE, VEL_PLANETA)
+from . import (ANCHO, ALTO, ALTO_MARCADOR, MARGEN_IZQ, MAX_NIVELES,
+               NUM_VIDAS, ORIGEN_ASTER, VEL_ASTER, VEL_FACTOR_INERCIA,
+               VEL_MAX_NAVE, VEL_NAVE, VEL_PLANETA)
 
 
 class Nave(pg.sprite.Sprite):
@@ -19,27 +19,25 @@ class Nave(pg.sprite.Sprite):
         self.current_frame = 0
         self.frames = 16
         self.frame_width = 100
-
-        # mi surface a mostrar:
         self.nave_frame_height = 70
+        # mi surface a mostrar:
         self.imagen_nave = pg.Surface(
             (self.frame_width, self.nave_frame_height))
         self.nave_frame_area = (0, 15, self.frame_width,
                                 self.nave_frame_height)
         self.imagen_nave.blit(self.sheet_nave, (0, 0),
                               area=self.nave_frame_area)
+        self.imagen_nave.set_colorkey((0, 0, 0))
+        alto_inicial = ((ALTO-ALTO_MARCADOR)/2)+(self.nave_frame_height/2)
+        self.rect = self.imagen_nave.get_rect(
+            midleft=(MARGEN_IZQ, alto_inicial))
+
         # surface auxiliar 100 x 100 para la explosion y la rotacion:
         self.aux_frame_height = 100
         self.imagen_aux = pg.Surface((self.frame_width, self.aux_frame_height))
         self.aux_frame_area = (0, 15, self.frame_width, self.aux_frame_height)
-
-        alto_inicial = ((ALTO-ALTO_MARCADOR)/2)+(self.nave_frame_height/2)
-
-        self.rect = self.imagen_nave.get_rect(
-            midleft=(MARGEN_IZQ, alto_inicial))
         self.rect_aux = self.imagen_aux.get_rect(
             midleft=(MARGEN_IZQ, alto_inicial))
-        self.imagen_nave.set_colorkey((0, 0, 0))
         self.imagen_aux.set_colorkey((0, 0, 0))
         # spritesheet de la explosion, una fila de 21 elementos de 105x105 cada uno
         ruta_explosion = os.path.join(

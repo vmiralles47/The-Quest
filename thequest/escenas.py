@@ -378,7 +378,7 @@ class Nivel(Escena):
         print("Nivel.puntacion= ", Nivel.puntuacion)
         print("has superado el nivel", self.nivel)
         if self.nivel == 4:
-            self.pintar_mensaje("¡Enhorabuena, has terminado el juego!")
+            self.pintar_mensaje("¡Enhorabuena, has terminado el juego!", 60)
         else:
             self.pintar_mensaje(
                 "Has superado el nivel {}".format(self.nivel), 60)

@@ -7,8 +7,9 @@ from .escenas import Nivel, Portada, Pantalla_puntos, Pantalla_records
 class TheQuest:
     def __init__(self):
         pg.init()
+        pg.display.set_caption("THE QUEST")
+        self.pantalla = pg.display.set_mode((ANCHO, ALTO))
 
-        self.pantalla = pg.display.set_mode((1500, ALTO))
         pg.mixer.init()
         # importar las escenas necesarias para jugar: INICIO Y JUEGO (records puede ser llamada tanto desde Inicio como Juego)
         # pasarles como argumento self.pantalla y self.records

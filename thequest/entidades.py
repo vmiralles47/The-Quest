@@ -171,7 +171,7 @@ class Asteroide(pg.sprite.Sprite):
         super().__init__()
         self.tipo = tipo
         self.imagenes = []
-        for i in range(16):
+        for i in range(15):
             if i < 9:
                 ruta_img = os.path.join(
                     "resources", "images", f"asteroid{self.tipo}", f"000{i+1}.png")
@@ -194,7 +194,7 @@ class Asteroide(pg.sprite.Sprite):
 
     def update(self, nivel):
         self.contador += 1
-        if self.contador > 15:
+        if self.contador > 14:
             self.contador = 0
         self.imagen = self.imagenes[self.contador]
 
@@ -251,7 +251,7 @@ class Contador_Vidas():
 
 class Fondo():
     # el bucle de fondo infinito lo hago con la misma imagen cargada dos veces
-    velocidad_fondo = 8
+    velocidad_fondo = 6
 
     def __init__(self):
         ruta = os.path.join("resources", "images",

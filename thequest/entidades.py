@@ -1,9 +1,9 @@
 import os
-from random import randint, randrange
+from random import randint
 import pygame as pg
 
 from . import (ANCHO, ALTO, ALTO_MARCADOR, MARGEN_IZQ, MAX_NIVELES,
-               NUM_VIDAS, ORIGEN_ASTER, VEL_ASTER, VEL_FACTOR_INERCIA,
+               NUM_VIDAS, ORIGEN_ASTER, RUTA_TIPOGRAFIA, VEL_ASTER, VEL_FACTOR_INERCIA,
                VEL_MAX_NAVE, VEL_NAVE, VEL_PLANETA)
 
 
@@ -57,7 +57,6 @@ class Nave(pg.sprite.Sprite):
         self.sonido_reactor_on = False
 
     def update(self):
-
         if self.current_frame > self.frames - 1:
             self.current_frame = 0
         else:
@@ -76,7 +75,7 @@ class Nave(pg.sprite.Sprite):
                           215, self.frame_width, self.nave_frame_height)
             self.imagen_nave.blit(
                 self.sheet_nave, (0, 0), area=frame_area)
-            print("subiendo A velocidad", self.velocidad)
+
             self.rect.y -= self.velocidad
             if self.velocidad <= VEL_MAX_NAVE:
                 self.velocidad += VEL_FACTOR_INERCIA
@@ -90,7 +89,6 @@ class Nave(pg.sprite.Sprite):
                           115, self.frame_width, self.nave_frame_height)
             self.imagen_nave.blit(
                 self.sheet_nave, (0, 0), area=frame_area)
-            print("bajando A velocidad:  ", self.velocidad)
             self.rect.y += self.velocidad
             if self.velocidad <= VEL_MAX_NAVE:
                 self.velocidad += VEL_FACTOR_INERCIA
@@ -100,21 +98,21 @@ class Nave(pg.sprite.Sprite):
         return self.se_mueve
 
     def update_explosion(self):
-        if self.contador_explosion == 21:
+        NUM_IMAGENES = 21
+        ANCHO_FRAME_EXPL = 105
+        if self.contador_explosion == NUM_IMAGENES:
             self.contador_explosion = 0
             return False
         else:
             self.contador_explosion += 1
-            frame_area = (self.contador_explosion*105, 15, 105, 105)
+            frame_area = (self.contador_explosion*ANCHO_FRAME_EXPL,
+                          15, ANCHO_FRAME_EXPL, ANCHO_FRAME_EXPL)
             self.imagen_aux.blit(self.sheet_explosion, (0, 0), frame_area)
             return True
 
     def update_rotacion(self, lugar_aterrizaje):
-        print("self.angulo_rotado: ", self.angulo_rotado)
         angulo_rotacion = 9
-
         if self.angulo_rotado < 180:
-
             self.imagen_aux = pg.transform.rotate(
                 self.imagen_nave, angulo_rotacion*self.contador_angulo
             )
@@ -123,11 +121,9 @@ class Nave(pg.sprite.Sprite):
             self.angulo_rotado += angulo_rotacion
             self.contador_angulo += 1
             return False
-
         elif self.rect_aux.centerx < ANCHO - ((ANCHO - lugar_aterrizaje)/2):
             self.rect_aux.centerx += VEL_NAVE
             return False
-
         else:
             return True
 
@@ -146,17 +142,12 @@ class Nave(pg.sprite.Sprite):
         distancia_centro_y = (ALTO/2 - self.rect.centery)
         distancia_centro_x = (ANCHO/2 - self.rect.centerx)
         vel_y = int(distancia_centro_y / 10)
-
         vel_x = int(distancia_centro_x / 10)
-        print("velx : ", vel_x, "vely: ", vel_y)
         self.rect.x += vel_x
         self.rect.y += vel_y
-        print("self.rect.centery", self.rect.centery,
-              int(ALTO/2)-10, int(ALTO/2 + 10))
         if int(self.rect.centery) in range(int((ALTO/2)-10), int((ALTO/2)+10)):
             vel_y = 0
             vel_x = 0
-            print("estoy en el centro")
             return True  # ya está en el centro, lista para rotar
         else:
             return False
@@ -182,20 +173,12 @@ class Asteroide(pg.sprite.Sprite):
         self.rect = self.imagen.get_rect(center=(ORIGEN_ASTER, altura))
         self.velocidad = VEL_ASTER[tipo-1]
         self.turno = turno
-        # TODO: que los turnos estén mejor espaciados, no pueden coincidir, igual que las alturas
-
-        print("asteroide tipo ", self.tipo,
-              "turno = ", self.turno,
-              "velocidad ", self.velocidad,
-              "altura", altura
-              )
 
     def update(self, nivel):
         self.contador += 1
         if self.contador > 14:
             self.contador = 0
         self.imagen = self.imagenes[self.contador]
-
         ha_salido = False
         self.turno = self.turno - 1
         if self.turno < 0:
@@ -208,9 +191,7 @@ class Asteroide(pg.sprite.Sprite):
 class Marcador():
     def __init__(self, puntos_de_inicio):
         self.total = puntos_de_inicio
-        fuente = "Square.ttf"
-        ruta = os.path.join("resources", "fonts", fuente)
-        self.tipo = pg.font.Font(ruta, 40)
+        self.tipo = pg.font.Font(RUTA_TIPOGRAFIA, 40)
 
     def incrementar(self, incremento):
         self.total += incremento
@@ -258,7 +239,6 @@ class Fondo():
         self.rect = self.imagen.get_rect(midleft=(0, ALTO/2))
 
     def update(self):
-        # if self.rect.midright == ANCHO+1:
 
         self.rect.x -= Fondo.velocidad_fondo
 

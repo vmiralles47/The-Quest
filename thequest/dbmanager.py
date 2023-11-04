@@ -19,8 +19,6 @@ class DBManager:
 
     def guardar(self, lista):
         self.borrar_lista()
-
-        print("voy a insertar en db la lista ", lista)
         conexion = sqlite3.connect(self.ruta)
         cursor = conexion.cursor()
         for dupla in lista:
@@ -31,7 +29,7 @@ class DBManager:
         conexion.close()
 
     def borrar_lista(self):
-        consulta = "DELETE FROM records WHERE _rowid_ IN ('10', '9','8', '7','6','5', '4', '3', '2', '1')"
+        consulta = "DELETE FROM records WHERE _rowid_ IN ('5', '4', '3', '2', '1')"
         conexion = sqlite3.connect(self.ruta)
         cursor = conexion.cursor()
         cursor.execute(consulta)

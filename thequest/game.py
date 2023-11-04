@@ -19,11 +19,7 @@ class TheQuest:
 
     def jugar(self):
         cerrar_juego = False
-        while not cerrar_juego:  # QUITAR
-            cerrar_juego = self.pantalla_puntos.bucle_principal(
-                300000)  # QUITAR
-            if not cerrar_juego:  # QUITAR
-                cerrar_juego = self.pantalla_records.bucle_principal()  # QUITAR
+        while not cerrar_juego:
             cerrar_juego = self.portada.bucle_principal()
             if not cerrar_juego:
                 for n in range(0, MAX_NIVELES):

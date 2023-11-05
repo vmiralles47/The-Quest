@@ -62,6 +62,7 @@ Esta base de datos ya modificada es la que muestra por pantalla la siguiente esc
 
 
 
+
 ## Desglose de entidades y sus métodos en "entidades.py"
 
 ### clase Nave
@@ -110,15 +111,17 @@ Cada una se encarga de la cifra correspondiente: Puntuación obtenida, vidas y n
 Al ser instanciados cogen el valor por defecto: 0 puntos, 3 vidas, nivel 1, y luego tienen métodos muy básicos para modificar  ese valor, ser consultados por la escena Nivel cuando sea necesario, y resetearse.
 
 
-## clase Fondo
+### clase Fondo
 Gestiona el bucle sin fin del fondo de cada escena `Nivel`. 
 
-## clase Planeta
+### clase Planeta
 Se instancia recibiendo el número de nivel como parámetro, eso permite comportamientos distintos según el nivel recibido.
 
 Para cada nivel, carga una imagen de planeta distinto según el nivel. Aunque el comportamiento de todos ellos es el mismo: empiezan a salir cuando se da la condicion de fin de nivel, y se mueven a velocidad constante hasta que su centro queda alineado con el margen derecho de la pantalla.
 
 Como no todos tienen exactamente el mismo tamaño, le pasan su coordenada `rect.left` al método de la nave `update_rotacion`, para que éste pueda calcular el lugar de aterrizaje de la nave, que es la mitad de la distancia entre el limíte izquierdo del planeta y el ancho de la pantalla.
+
+
 
 
 
